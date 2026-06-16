@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.models.content import Resource, ResourceEnrichment
+from app.models.content import Resource
 from app.models.tutor import TutorConversation, TutorMessage
 from app.models.user import StudentProfile
 
@@ -110,10 +110,7 @@ async def send_message(
         learning_style=student.learning_style if student else "não definido",
     )
 
-    messages_history = [
-        {"role": m.role, "content": m.content}
-        for m in conversation.messages[-10:]
-    ]
+    messages_history = [{"role": m.role, "content": m.content} for m in conversation.messages[-10:]]
     messages_history.append({"role": "user", "content": body.message})
 
     user_msg = TutorMessage(
@@ -129,7 +126,7 @@ async def send_message(
         async with _anthropic_client.messages.stream(
             model="claude-sonnet-4-6",
             system=system,
-            messages=messages_history,
+            messages=messages_history,  # type: ignore[arg-type]
             max_tokens=500,
         ) as stream:
             async for chunk in stream.text_stream:

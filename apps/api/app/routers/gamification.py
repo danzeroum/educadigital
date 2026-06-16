@@ -64,9 +64,7 @@ async def list_achievements(user_id: uuid.UUID, db: AsyncSession = Depends(get_d
     all_achievements = await db.execute(select(Achievement))
     achievements = all_achievements.scalars().all()
 
-    earned = await db.execute(
-        select(UserAchievement).where(UserAchievement.user_id == user_id)
-    )
+    earned = await db.execute(select(UserAchievement).where(UserAchievement.user_id == user_id))
     earned_map = {ua.achievement_id: ua.earned_at for ua in earned.scalars().all()}
 
     return [
@@ -86,7 +84,7 @@ async def list_achievements(user_id: uuid.UUID, db: AsyncSession = Depends(get_d
 @router.get("/certificates", response_model=list[CertificateOut])
 async def list_certificates(user_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Certificate).where(Certificate.user_id == user_id, Certificate.is_valid == True)
+        select(Certificate).where(Certificate.user_id == user_id, Certificate.is_valid)
     )
     certs = result.scalars().all()
     return [

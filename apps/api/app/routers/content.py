@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
-from app.models.content import Exercise, Resource, ResourceEnrichment, VideoCheckpoint
+from app.models.content import Resource, VideoCheckpoint
 
 router = APIRouter()
 
@@ -77,7 +77,9 @@ async def list_resources(
                 license=r.license,
                 thumbnail_url=r.thumbnail_url,
                 status=r.status,
-                difficulty_score=float(enrichment.difficulty_score) if enrichment and enrichment.difficulty_score else None,
+                difficulty_score=float(enrichment.difficulty_score)
+                if enrichment and enrichment.difficulty_score
+                else None,
                 summary_basic=enrichment.summary_basic if enrichment else None,
                 tags=[t.tag for t in r.tags],
                 bncc_codes=[m.bncc_code for m in r.bncc_mappings],
@@ -114,7 +116,9 @@ async def get_resource(resource_id: uuid.UUID, db: AsyncSession = Depends(get_db
         license=resource.license,
         thumbnail_url=resource.thumbnail_url,
         status=resource.status,
-        difficulty_score=float(enrichment.difficulty_score) if enrichment and enrichment.difficulty_score else None,
+        difficulty_score=float(enrichment.difficulty_score)
+        if enrichment and enrichment.difficulty_score
+        else None,
         summary_basic=enrichment.summary_basic if enrichment else None,
         tags=[t.tag for t in resource.tags],
         bncc_codes=[m.bncc_code for m in resource.bncc_mappings],

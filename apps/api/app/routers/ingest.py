@@ -52,7 +52,9 @@ async def ingest_resource(
 ):
     allowed_types = ["application/pdf", "text/plain", "application/msword"]
     if file.content_type not in allowed_types:
-        raise HTTPException(status_code=400, detail=f"Tipo de arquivo não suportado: {file.content_type}")
+        raise HTTPException(
+            status_code=400, detail=f"Tipo de arquivo não suportado: {file.content_type}"
+        )
 
     file_bytes = await file.read()
     if len(file_bytes) > 50 * 1024 * 1024:

@@ -1,5 +1,6 @@
 """Worker de agendamento do Spaced Repetition System."""
-from datetime import date, timedelta
+
+from datetime import date
 
 import structlog
 
@@ -12,7 +13,9 @@ log = structlog.get_logger()
 def schedule_daily_reviews():
     """Garante que todos os cartões devidos são acessíveis. Envia notificações se configurado."""
     import asyncio
-    from sqlalchemy import select, func
+
+    from sqlalchemy import func, select
+
     from app.core.database import AsyncSessionLocal
     from app.models.learning import SrsCard
 

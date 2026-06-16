@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, text
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,7 +17,9 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="student")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
     )
@@ -28,8 +30,12 @@ class User(Base):
         onupdate=lambda: datetime.now(UTC),
     )
 
-    student_profile: Mapped["StudentProfile | None"] = relationship(back_populates="user", uselist=False)
-    tutor_profile: Mapped["TutorProfile | None"] = relationship(back_populates="user", uselist=False)
+    student_profile: Mapped["StudentProfile | None"] = relationship(
+        back_populates="user", uselist=False
+    )
+    tutor_profile: Mapped["TutorProfile | None"] = relationship(
+        back_populates="user", uselist=False
+    )
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user")
 
 

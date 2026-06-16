@@ -2,8 +2,8 @@
 Worker de ingestão de conteúdo de fontes externas.
 Suporta: YouTube, upload de arquivo (PDF/texto)
 """
+
 import uuid
-from datetime import UTC, datetime
 
 import httpx
 import structlog
@@ -26,9 +26,10 @@ def ingest_youtube(self, youtube_url: str, eja_level: str | None = None):
     """
     import asyncio
     import re
+
     from app.core.config import settings
     from app.core.database import AsyncSessionLocal
-    from app.models.content import ContentSource, Resource, ResourceEnrichment
+    from app.models.content import ContentSource, Resource
 
     async def _run():
         video_id_match = re.search(r"(?:v=|youtu\.be/)([^&\s]+)", youtube_url)
@@ -58,6 +59,7 @@ def ingest_youtube(self, youtube_url: str, eja_level: str | None = None):
 
         async with AsyncSessionLocal() as db:
             from sqlalchemy import select
+
             yt_source = await db.execute(
                 select(ContentSource).where(ContentSource.name == "YouTube")
             )
@@ -95,7 +97,6 @@ def ingest_youtube(self, youtube_url: str, eja_level: str | None = None):
 
         return {"resource_id": resource_id, "status": "processing"}
 
-    import asyncio
     try:
         return asyncio.run(_run())
     except Exception as exc:
@@ -107,20 +108,20 @@ def ingest_youtube(self, youtube_url: str, eja_level: str | None = None):
 def transcribe_youtube_audio(self, resource_id: str, video_id: str):
     """Baixa áudio do YouTube e transcreve com Whisper."""
     import asyncio
-    import tempfile
     import os
+    import tempfile
+
     import yt_dlp
     from openai import OpenAI
+    from sqlalchemy import select
+
     from app.core.config import settings
     from app.core.database import AsyncSessionLocal
     from app.models.content import Resource, ResourceEnrichment
-    from sqlalchemy import select
 
     async def _save_transcript(transcript_text: str):
         async with AsyncSessionLocal() as db:
-            result = await db.execute(
-                select(Resource).where(Resource.id == uuid.UUID(resource_id))
-            )
+            result = await db.execute(select(Resource).where(Resource.id == uuid.UUID(resource_id)))
             resource = result.scalar_one()
 
             enrichment = ResourceEnrichment(
@@ -138,11 +139,13 @@ def transcribe_youtube_audio(self, resource_id: str, video_id: str):
             ydl_opts = {
                 "format": "bestaudio/best",
                 "outtmpl": os.path.join(tmpdir, "audio.%(ext)s"),
-                "postprocessors": [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "64",
-                }],
+                "postprocessors": [
+                    {
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": "mp3",
+                        "preferredquality": "64",
+                    }
+                ],
                 "quiet": True,
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -177,14 +180,17 @@ def ingest_file(
     """Ingere um arquivo PDF ou texto."""
     import asyncio
     import io
+
+    from sqlalchemy import select
+
     from app.core.database import AsyncSessionLocal
     from app.models.content import ContentSource, Resource, ResourceEnrichment
-    from sqlalchemy import select
 
     async def _run():
         text_content = ""
         if content_type == "application/pdf":
             import fitz
+
             doc = fitz.open(stream=io.BytesIO(file_bytes), filetype="pdf")
             text_content = "\n".join(page.get_text() for page in doc)
         else:

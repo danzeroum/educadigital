@@ -1,4 +1,5 @@
 """Worker de processamento do diagnóstico multimodal."""
+
 import json
 import uuid
 from datetime import UTC, datetime
@@ -46,12 +47,14 @@ Retorne APENAS JSON:
 def process_audio(self, session_id: str, audio_bytes: bytes):
     """Transcreve e analisa áudio do diagnóstico."""
     import asyncio
+    import os
+    import tempfile
+
     from openai import OpenAI
+
     from app.core.config import settings
     from app.core.database import AsyncSessionLocal
-    from app.models.diagnostic import DiagnosticResponse, DiagnosticSession
-    from sqlalchemy import select
-    import tempfile, os
+    from app.models.diagnostic import DiagnosticResponse
 
     async def _run():
         with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as f:
@@ -106,11 +109,12 @@ def process_handwriting(self, session_id: str, photo_bytes: bytes):
     """OCR e análise da escrita manual."""
     import asyncio
     import io
+
     import pytesseract
     from PIL import Image
+
     from app.core.database import AsyncSessionLocal
     from app.models.diagnostic import DiagnosticResponse
-    import tempfile, os
 
     async def _run():
         image = Image.open(io.BytesIO(photo_bytes))
@@ -149,6 +153,7 @@ def _score_writing(text: str) -> float:
 def process_quiz(session_id: str, responses: list[dict]):
     """Processa respostas do quiz contextual."""
     import asyncio
+
     from app.core.database import AsyncSessionLocal
     from app.models.diagnostic import DiagnosticResponse
 
@@ -164,7 +169,8 @@ def process_quiz(session_id: str, responses: list[dict]):
                 metadata={
                     "total_questions": len(responses),
                     "correct": correct,
-                    "avg_response_time_ms": sum(r.get("response_time_ms", 0) for r in responses) // max(len(responses), 1),
+                    "avg_response_time_ms": sum(r.get("response_time_ms", 0) for r in responses)
+                    // max(len(responses), 1),
                 },
                 processed_at=datetime.now(UTC),
             )
@@ -179,7 +185,9 @@ def process_quiz(session_id: str, responses: list[dict]):
 def _check_and_synthesize(session_id: str):
     """Se todas as etapas foram processadas, dispara síntese final."""
     import asyncio
-    from sqlalchemy import select, func
+
+    from sqlalchemy import func, select
+
     from app.core.database import AsyncSessionLocal
     from app.models.diagnostic import DiagnosticResponse
 
@@ -203,8 +211,10 @@ def _check_and_synthesize(session_id: str):
 def synthesize_diagnostic(self, session_id: str):
     """Sintetiza todos os dados do diagnóstico via LLM."""
     import asyncio
+
     import anthropic
     from sqlalchemy import select
+
     from app.core.config import settings
     from app.core.database import AsyncSessionLocal
     from app.models.diagnostic import DiagnosticResponse, DiagnosticResult, DiagnosticSession
@@ -218,7 +228,9 @@ def synthesize_diagnostic(self, session_id: str):
             )
             responses_list = responses.scalars().all()
 
-            scores = {r.step_type: (r.score or 0, r.raw_content or "", r.metadata) for r in responses_list}
+            scores = {
+                r.step_type: (r.score or 0, r.raw_content or "", r.metadata) for r in responses_list
+            }
             audio_score, audio_transcript, _ = scores.get("audio", (0, "", {}))
             writing_score, handwriting_text, _ = scores.get("handwriting", (0, "", {}))
             numeracy_score = scores.get("contextual_quiz", (0, "", {}))[0]
@@ -239,7 +251,7 @@ def synthesize_diagnostic(self, session_id: str):
                 max_tokens=800,
                 messages=[{"role": "user", "content": prompt}],
             )
-            data = json.loads(response.content[0].text)
+            data = json.loads(response.content[0].text)  # type: ignore[union-attr]
 
             session_result = await db.execute(
                 select(DiagnosticSession).where(DiagnosticSession.id == uuid.UUID(session_id))

@@ -1,17 +1,24 @@
-from app.models.content import Resource, ResourceEnrichment, ResourceBnccMapping, ResourceTag
-from app.models.content import VideoCheckpoint, Exercise, ContentSource
-from app.models.diagnostic import DiagnosticSession, DiagnosticResponse, DiagnosticResult
-from app.models.gamification import Achievement, UserAchievement, XPTransaction, Certificate
+from app.models.content import (
+    ContentSource,
+    Exercise,
+    Resource,
+    ResourceBnccMapping,
+    ResourceEnrichment,
+    ResourceTag,
+    VideoCheckpoint,
+)
+from app.models.diagnostic import DiagnosticResponse, DiagnosticResult, DiagnosticSession
+from app.models.gamification import Achievement, Certificate, UserAchievement, XPTransaction
 from app.models.learning import (
+    ExerciseResponse,
     LearningPath,
     LearningPathItem,
-    UserResourceProgress,
-    ExerciseResponse,
     SrsCard,
     SrsReview,
+    UserResourceProgress,
 )
-from app.models.tutor import TutorConversation, TutorMessage, RiskAlert, StudentDailyMetrics
-from app.models.user import User, StudentProfile, TutorProfile, RefreshToken, TutorStudentAssignment
+from app.models.tutor import RiskAlert, StudentDailyMetrics, TutorConversation, TutorMessage
+from app.models.user import RefreshToken, StudentProfile, TutorProfile, TutorStudentAssignment, User
 
 __all__ = [
     "Achievement",

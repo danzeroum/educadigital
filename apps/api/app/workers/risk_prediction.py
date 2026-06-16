@@ -2,11 +2,16 @@
 Worker de predição de risco de evasão.
 Roda diariamente via Celery Beat.
 """
+
 from datetime import date, timedelta
+from typing import TYPE_CHECKING
 
 import structlog
 
 from app.workers.celery_app import celery_app
+
+if TYPE_CHECKING:
+    from app.models.tutor import StudentDailyMetrics
 
 log = structlog.get_logger()
 
@@ -23,7 +28,7 @@ RISK_FEATURES = [
 ]
 
 
-def _extract_features(metrics: list) -> list[float]:
+def _extract_features(metrics: "list[StudentDailyMetrics]") -> list[float]:
     """Extrai features dos últimos 7 dias de métricas."""
     if not metrics:
         return [7.0, -0.5, 0.0, 5000.0, 0.0, 0.0, 0.0, 0.0, 1.0]
@@ -41,6 +46,7 @@ def _extract_features(metrics: list) -> list[float]:
     access_counts = [m.resources_accessed for m in metrics]
     if len(access_counts) >= 2:
         from statistics import mean
+
         mid = len(access_counts) // 2
         trend = mean(access_counts[mid:]) - mean(access_counts[:mid])
     else:
@@ -52,9 +58,9 @@ def _extract_features(metrics: list) -> list[float]:
         accuracy,
         2000.0,  # avg response time (placeholder)
         float(types_accessed),
-        0.5,    # weekly plan completion (placeholder)
+        0.5,  # weekly plan completion (placeholder)
         float(sum(m.tutor_interactions for m in metrics)),
-        0.0,    # repeated error count (placeholder)
+        0.0,  # repeated error count (placeholder)
         1.0 if days_since > 2 else 0.0,
     ]
 
@@ -124,10 +130,11 @@ def _suggested_action(risk_level: str, days_since: float) -> tuple[str, str]:
 def aggregate_daily_metrics():
     """Consolida métricas diárias de todos os alunos."""
     import asyncio
-    from datetime import UTC, datetime
-    from sqlalchemy import select, func
+
+    from sqlalchemy import func, select
+
     from app.core.database import AsyncSessionLocal
-    from app.models.learning import UserResourceProgress, ExerciseResponse
+    from app.models.learning import ExerciseResponse
     from app.models.tutor import StudentDailyMetrics, TutorConversation
     from app.models.user import User
 
@@ -135,7 +142,7 @@ def aggregate_daily_metrics():
         target_date = date.today() - timedelta(days=1)
         async with AsyncSessionLocal() as db:
             students = await db.execute(
-                select(User.id).where(User.role == "student", User.is_active == True)
+                select(User.id).where(User.role == "student", User.is_active)
             )
             student_ids = [r[0] for r in students.all()]
 
@@ -186,16 +193,17 @@ def aggregate_daily_metrics():
 def run_risk_prediction_all():
     """Roda predição de risco para todos os alunos."""
     import asyncio
-    from datetime import UTC, datetime
+
     from sqlalchemy import select
+
     from app.core.database import AsyncSessionLocal
-    from app.models.tutor import StudentDailyMetrics, RiskAlert
+    from app.models.tutor import RiskAlert, StudentDailyMetrics
     from app.models.user import User
 
     async def _run():
         async with AsyncSessionLocal() as db:
             students = await db.execute(
-                select(User.id).where(User.role == "student", User.is_active == True)
+                select(User.id).where(User.role == "student", User.is_active)
             )
             student_ids = [r[0] for r in students.all()]
 
@@ -209,7 +217,7 @@ def run_risk_prediction_all():
                 )
                 metrics = metrics_result.scalars().all()
 
-                features = _extract_features(metrics)
+                features = _extract_features(list(metrics))
                 probability = _simple_risk_score(features)
                 level = _risk_level(probability)
 
@@ -223,7 +231,7 @@ def run_risk_prediction_all():
                 if features[1] < -0.3:
                     factors.append("Tendência de queda no engajamento")
                 if features[2] < 0.4:
-                    factors.append(f"Taxa de acerto baixa ({features[2]*100:.0f}%)")
+                    factors.append(f"Taxa de acerto baixa ({features[2] * 100:.0f}%)")
 
                 alert = RiskAlert(
                     user_id=student_id,

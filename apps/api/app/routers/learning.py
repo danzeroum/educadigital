@@ -86,9 +86,7 @@ async def get_active_path(user_id: uuid.UUID, db: AsyncSession = Depends(get_db)
 
 @router.post("/path/items/{item_id}/complete", status_code=200)
 async def complete_item(item_id: uuid.UUID, user_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(LearningPathItem).where(LearningPathItem.id == item_id)
-    )
+    result = await db.execute(select(LearningPathItem).where(LearningPathItem.id == item_id))
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Item não encontrado")

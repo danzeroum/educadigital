@@ -12,8 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.security import (
     create_access_token,
-    create_refresh_token,
-    decode_token,
     hash_password,
     verify_password,
 )
@@ -53,9 +51,7 @@ async def register(request: Request, body: RegisterRequest, db: AsyncSession = D
         raise HTTPException(status_code=400, detail="Email ou telefone é obrigatório")
 
     existing = await db.execute(
-        select(User).where(
-            (User.email == body.email) if body.email else (User.phone == body.phone)
-        )
+        select(User).where((User.email == body.email) if body.email else (User.phone == body.phone))
     )
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Usuário já cadastrado")
@@ -148,9 +144,7 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
     token_hash = hashlib.sha256(body.refresh_token.encode()).hexdigest()
-    result = await db.execute(
-        select(RefreshToken).where(RefreshToken.token_hash == token_hash)
-    )
+    result = await db.execute(select(RefreshToken).where(RefreshToken.token_hash == token_hash))
     token_obj = result.scalar_one_or_none()
     if token_obj:
         token_obj.revoked_at = datetime.now(UTC)

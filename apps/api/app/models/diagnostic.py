@@ -22,7 +22,9 @@ class DiagnosticSession(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     responses: Mapped[list["DiagnosticResponse"]] = relationship(back_populates="session")
-    result: Mapped["DiagnosticResult | None"] = relationship(back_populates="session", uselist=False)
+    result: Mapped["DiagnosticResult | None"] = relationship(
+        back_populates="session", uselist=False
+    )
 
 
 class DiagnosticResponse(Base):
@@ -35,7 +37,7 @@ class DiagnosticResponse(Base):
     step_type: Mapped[str] = mapped_column(String(30), nullable=False)
     raw_content: Mapped[str | None] = mapped_column(Text)
     score: Mapped[float | None] = mapped_column(Numeric(5, 2))
-    metadata: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    metadata: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)  # type: ignore[assignment, misc]
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     session: Mapped["DiagnosticSession"] = relationship(back_populates="responses")

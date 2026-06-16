@@ -1,13 +1,13 @@
 import uuid
-from datetime import date, timedelta
+from datetime import date
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.models.tutor import RiskAlert, StudentDailyMetrics
+from app.models.tutor import RiskAlert
 from app.models.user import StudentProfile, TutorStudentAssignment
 
 router = APIRouter()

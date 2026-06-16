@@ -8,6 +8,7 @@ Pipeline:
   4. Geração de exercícios
   5. Geração de checkpoints para vídeos
 """
+
 import json
 import uuid
 from datetime import UTC, datetime
@@ -96,10 +97,12 @@ Transcrição com timestamps:
 def enrich_resource(self, resource_id: str):
     """Enriquece um recurso com metadados gerados por IA."""
     import asyncio
+
     from sqlalchemy import select
     from sqlalchemy.orm import selectinload
+
     from app.core.database import AsyncSessionLocal
-    from app.models.content import Resource, ResourceEnrichment, ResourceBnccMapping, ResourceTag
+    from app.models.content import Resource, ResourceBnccMapping, ResourceEnrichment, ResourceTag
 
     async def _run():
         async with AsyncSessionLocal() as db:
@@ -131,7 +134,7 @@ def enrich_resource(self, resource_id: str):
                 messages=[{"role": "user", "content": prompt}],
             )
 
-            data = json.loads(response.content[0].text)
+            data = json.loads(response.content[0].text)  # type: ignore[union-attr]
 
             if resource.enrichment:
                 enrichment = resource.enrichment
@@ -153,11 +156,13 @@ def enrich_resource(self, resource_id: str):
                 db.add(ResourceTag(resource_id=resource.id, tag=tag))
 
             for bncc in data.get("bncc_codes", []):
-                db.add(ResourceBnccMapping(
-                    resource_id=resource.id,
-                    bncc_code=bncc["code"],
-                    confidence=bncc.get("confidence"),
-                ))
+                db.add(
+                    ResourceBnccMapping(
+                        resource_id=resource.id,
+                        bncc_code=bncc["code"],
+                        confidence=bncc.get("confidence"),
+                    )
+                )
 
             resource.status = "ready"
             await db.commit()

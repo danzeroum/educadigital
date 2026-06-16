@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     # Celery
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
+    CELERY_TASK_SOFT_TIME_LIMIT: int = 300
+    CELERY_TASK_TIME_LIMIT: int = 600
 
     # Monitoring
     SENTRY_DSN: str = ""
@@ -55,4 +57,4 @@ class Settings(BaseSettings):
     FEATURE_COMMUNITY_CONTENT: bool = False
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]

@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -88,10 +88,14 @@ class SrsCard(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
-    resource_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("resources.id"))
-    exercise_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("exercises.id"))
+    resource_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("resources.id")
+    )
+    exercise_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("exercises.id")
+    )
     concept_label: Mapped[str] = mapped_column(Text, nullable=False)
-    due_date: Mapped[datetime] = mapped_column(Date, nullable=False)
+    due_date: Mapped[date] = mapped_column(Date, nullable=False)
     interval_days: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     ease_factor: Mapped[float] = mapped_column(Numeric(4, 2), nullable=False, default=2.50)
     repetitions: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

@@ -11,7 +11,7 @@ from slowapi.util import get_remote_address
 
 from app.core.config import settings
 from app.core.database import engine
-from app.routers import auth, content, diagnostic, gamification, learning, tutor, dashboard, ingest
+from app.routers import auth, content, dashboard, diagnostic, gamification, ingest, learning, tutor
 
 log = structlog.get_logger()
 
@@ -43,7 +43,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(

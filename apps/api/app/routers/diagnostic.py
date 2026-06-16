@@ -64,9 +64,7 @@ async def submit_audio(
     audio_file: UploadFile,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(DiagnosticSession).where(DiagnosticSession.id == session_id)
-    )
+    result = await db.execute(select(DiagnosticSession).where(DiagnosticSession.id == session_id))
     session = result.scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=404, detail="Sessão não encontrada")
@@ -88,9 +86,7 @@ async def submit_photo(
     photo_file: UploadFile,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(DiagnosticSession).where(DiagnosticSession.id == session_id)
-    )
+    result = await db.execute(select(DiagnosticSession).where(DiagnosticSession.id == session_id))
     session = result.scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=404, detail="Sessão não encontrada")

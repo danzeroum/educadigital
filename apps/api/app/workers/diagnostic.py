@@ -81,7 +81,7 @@ def process_audio(self, session_id: str, audio_bytes: bytes):
                 step_type="audio",
                 raw_content=transcript,
                 score=oral_score,
-                metadata={"oral_score": oral_score},
+                step_metadata={"oral_score": oral_score},
                 processed_at=datetime.now(UTC),
             )
             db.add(response)
@@ -128,7 +128,7 @@ def process_handwriting(self, session_id: str, photo_bytes: bytes):
                 step_type="handwriting",
                 raw_content=text,
                 score=writing_score,
-                metadata={"writing_score": writing_score, "word_count": len(text.split())},
+                step_metadata={"writing_score": writing_score, "word_count": len(text.split())},
                 processed_at=datetime.now(UTC),
             )
             db.add(response)
@@ -166,7 +166,7 @@ def process_quiz(session_id: str, responses: list[dict]):
                 session_id=uuid.UUID(session_id),
                 step_type="contextual_quiz",
                 score=score,
-                metadata={
+                step_metadata={
                     "total_questions": len(responses),
                     "correct": correct,
                     "avg_response_time_ms": sum(r.get("response_time_ms", 0) for r in responses)
@@ -229,7 +229,8 @@ def synthesize_diagnostic(self, session_id: str):
             responses_list = responses.scalars().all()
 
             scores = {
-                r.step_type: (r.score or 0, r.raw_content or "", r.metadata) for r in responses_list
+                r.step_type: (r.score or 0, r.raw_content or "", r.step_metadata)
+                for r in responses_list
             }
             audio_score, audio_transcript, _ = scores.get("audio", (0, "", {}))
             writing_score, handwriting_text, _ = scores.get("handwriting", (0, "", {}))

@@ -37,7 +37,9 @@ class DiagnosticResponse(Base):
     step_type: Mapped[str] = mapped_column(String(30), nullable=False)
     raw_content: Mapped[str | None] = mapped_column(Text)
     score: Mapped[float | None] = mapped_column(Numeric(5, 2))
-    metadata: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)  # type: ignore[assignment, misc]
+    step_metadata: Mapped[dict] = mapped_column(
+        JSONB, name="metadata", nullable=False, default=dict
+    )
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     session: Mapped["DiagnosticSession"] = relationship(back_populates="responses")

@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  @keyframes ed-spin { to { transform: rotate(360deg); } }
+  @keyframes ed-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .85; } }
+  @keyframes ed-ring { 0% { box-shadow: 0 0 0 0 rgba(229,72,77,.45); } 100% { box-shadow: 0 0 0 22px rgba(229,72,77,0); } }
+  @keyframes ed-wave { 0%,100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+  @keyframes ed-dots { 0%,80%,100% { transform: translateY(0); opacity:.4;} 40% { transform: translateY(-4px); opacity:1;} }
+  @keyframes ed-slideup { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes ed-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ed-pop { 0% { transform: scale(.4); opacity:0; } 70% { transform: scale(1.12); } 100% { transform: scale(1); opacity:1; } }
+  @keyframes ed-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes ed-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes ed-fall { to { transform: translateY(120vh) rotate(640deg); opacity: 0; } }
+  @keyframes ed-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes ed-bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;font-family:'Plus Jakarta Sans',sans-serif;color:#15241C;background:radial-gradient(1200px 700px at 18% -8%, #DFF6E6 0%, rgba(223,246,230,0) 55%), radial-gradient(1100px 700px at 110% 8%, #FFEFD2 0%, rgba(255,239,210,0) 50%), #FBF7EF;display:flex;align-items:flex-start;justify-content:center;padding:0;overflow-x:hidden;">
+
+  <!-- floating prototype switcher -->
+  <div style="position:fixed;top:16px;right:16px;z-index:60;display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border:1px solid #ECE5D6;border-radius:999px;padding:5px;box-shadow:0 8px 24px rgba(18,38,28,.1);">
+    <button onClick="{{ goLauncher }}" style="border:none;background:transparent;cursor:pointer;font-family:'Plus Jakarta Sans';font-weight:700;font-size:12px;color:#5B6B62;border-radius:999px;padding:7px 11px;min-height:0;">⌂ Início</button>
+    <button onClick="{{ goAlunoBtn }}" style="border:none;cursor:pointer;font-family:'Plus Jakarta Sans';font-weight:700;font-size:12px;border-radius:999px;padding:7px 13px;min-height:0;background:{{ swAlunoBg }};color:{{ swAlunoFg }};">Aluno</button>
+    <button onClick="{{ goTutorBtn }}" style="border:none;cursor:pointer;font-family:'Plus Jakarta Sans';font-weight:700;font-size:12px;border-radius:999px;padding:7px 13px;min-height:0;background:{{ swTutorBg }};color:{{ swTutorFg }};">Tutor</button>
+    <span style="width:1px;height:18px;background:#E4DCC9;"></span>
+    <button onClick="{{ toggleOffline }}" title="Alternar modo offline" style="border:none;cursor:pointer;font-family:'Plus Jakarta Sans';font-weight:700;font-size:12px;border-radius:999px;padding:7px 12px;min-height:0;white-space:nowrap;background:{{ offSwBg }};color:{{ offSwFg }};">{{ offPillText }}</button>
+  </div>
+
+  <!-- ============ LAUNCHER ============ -->
+  <sc-if value="{{ isLauncher }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:11px;margin-bottom:30px;">
+      <div style="width:54px;height:54px;border-radius:17px;background:linear-gradient(150deg,#22C55E,#15803D);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(22,163,74,.35);transform:rotate(-4deg);">
+        <span style="font-size:30px;line-height:1;">🌱</span>
+      </div>
+      <span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;letter-spacing:-.02em;color:#15241C;">Educa<span style="color:#16A34A;">Digital</span></span>
+    </div>
+    <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:clamp(34px,6vw,60px);line-height:1.02;letter-spacing:-.03em;margin:0 0 16px;max-width:760px;text-wrap:balance;">Aprenda no seu ritmo.<br><span style="color:#16A34A;">No seu tempo.</span></h1>
+    <p style="font-size:18px;line-height:1.5;color:#5B6B62;max-width:480px;margin:0 0 40px;">Seu tutor de bolso pra terminar os estudos — com vídeos, conversa e celebração a cada passo. 🎉</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;width:100%;max-width:720px;">
+      <button onClick="{{ startOnboarding }}" style="cursor:pointer;text-align:left;border:none;border-radius:26px;padding:26px;background:linear-gradient(155deg,#16A34A,#0B5132);color:#fff;box-shadow:0 18px 40px rgba(11,81,50,.32);position:relative;overflow:hidden;min-height:0;">
+        <div style="position:absolute;right:-18px;top:-18px;font-size:120px;opacity:.18;transform:rotate(8deg);">🌳</div>
+        <div style="position:relative;">
+          <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85;margin-bottom:10px;">Sou aluno</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:23px;line-height:1.1;margin-bottom:8px;">Começar agora</div>
+          <div style="font-size:14px;opacity:.9;line-height:1.45;">Faça o diagnóstico de 8 min e ganhe uma trilha só sua.</div>
+          <div style="margin-top:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.18);padding:9px 15px;border-radius:999px;font-weight:700;font-size:14px;">Vamos lá <span>→</span></div>
+        </div>
+      </button>
+
+      <button onClick="{{ goAlunoBtn }}" style="cursor:pointer;text-align:left;border:1px solid #ECE5D6;border-radius:26px;padding:26px;background:#fff;color:#15241C;box-shadow:0 10px 30px rgba(18,38,28,.07);position:relative;overflow:hidden;min-height:0;">
+        <div style="position:absolute;right:-10px;top:-14px;font-size:96px;opacity:.1;transform:rotate(-8deg);">📲</div>
+        <div style="position:relative;">
+          <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#16A34A;margin-bottom:10px;">Demonstração</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:23px;line-height:1.1;margin-bottom:8px;">Ver o app do aluno</div>
+          <div style="font-size:14px;color:#5B6B62;line-height:1.45;">Entre direto no painel, vídeos, revisão e conquistas.</div>
+          <div style="margin-top:18px;display:inline-flex;align-items:center;gap:7px;background:#EAF8EF;color:#16A34A;padding:9px 15px;border-radius:999px;font-weight:700;font-size:14px;">Explorar <span>→</span></div>
+        </div>
+      </button>
+
+      <button onClick="{{ goTutorBtn }}" style="cursor:pointer;text-align:left;border:1px solid #ECE5D6;border-radius:26px;padding:26px;background:#fff;color:#15241C;box-shadow:0 10px 30px rgba(18,38,28,.07);position:relative;overflow:hidden;min-height:0;">
+        <div style="position:absolute;right:-12px;top:-14px;font-size:90px;opacity:.1;transform:rotate(6deg);">📊</div>
+        <div style="position:relative;">
+          <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2D7FF9;margin-bottom:10px;">Sou tutor</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:700;font-size:23px;line-height:1.1;margin-bottom:8px;">Painel do educador</div>
+          <div style="font-size:14px;color:#5B6B62;line-height:1.45;">Veja quem está em risco antes que desista — em 20 segundos.</div>
+          <div style="margin-top:18px;display:inline-flex;align-items:center;gap:7px;background:#E8F1FF;color:#2D7FF9;padding:9px 15px;border-radius:999px;font-weight:700;font-size:14px;">Abrir painel <span>→</span></div>
+        </div>
+      </button>
+    </div>
+    <p style="margin-top:34px;font-size:13px;color:#9AA89F;">Protótipo navegável · EJA · PWA mobile-first · v1.0</p>
+  </div>
+  </sc-if>
+
+  <!-- ============ ALUNO (phone) ============ -->
+  <sc-if value="{{ isAluno }}">
+  <div style="min-height:100vh;width:100%;display:flex;align-items:flex-start;justify-content:center;padding:34px 16px 50px;">
+    <div style="position:relative;width:384px;max-width:100%;">
+      <!-- ambient blobs -->
+      <div style="position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#9BE8B8,transparent 70%);filter:blur(20px);top:-30px;left:-90px;opacity:.5;z-index:0;"></div>
+      <div style="position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#FFD58A,transparent 70%);filter:blur(20px);bottom:40px;right:-90px;opacity:.5;z-index:0;"></div>
+
+      <div style="position:relative;z-index:1;width:384px;max-width:100%;height:830px;background:#0B1410;border-radius:54px;padding:11px;box-shadow:0 40px 90px rgba(11,20,16,.4), 0 0 0 2px rgba(255,255,255,.04) inset;">
+        <div style="position:relative;width:100%;height:100%;background:#FBF7EF;border-radius:44px;overflow:hidden;display:flex;flex-direction:column;">
+          <!-- status bar -->
+          <div style="position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:14px 28px 0;font-size:14px;font-weight:700;z-index:30;pointer-events:none;color:{{ statusColor }};">
+            <span style="font-family:'Space Mono';">9:41</span>
+            <div style="position:absolute;left:50%;top:9px;transform:translateX(-50%);width:108px;height:30px;background:#0B1410;border-radius:18px;"></div>
+            <span style="display:flex;gap:6px;align-items:center;font-size:13px;">{{ netIcon }} ▮▮▮ 84%</span>
+          </div>
+
+          <!-- offline pill -->
+          <sc-if value="{{ offline }}">
+          <div style="position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:31;background:#FEF1D6;border:1px solid #FADFA8;color:#B45309;font-weight:700;font-size:11.5px;padding:5px 13px;border-radius:99px;box-shadow:0 4px 12px rgba(180,83,9,.15);white-space:nowrap;">📵 Sem conexão — usando conteúdo salvo</div>
+          </sc-if>
+
+          <!-- screen scroll area -->
+          <div style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
+
+            <!-- ===== DIAGNÓSTICO ===== -->
+            <sc-if value="{{ showDiag }}">
+            <div style="min-height:100%;display:flex;flex-direction:column;">
+              <!-- intro -->
+              <sc-if value="{{ diagIntro }}">
+              <div style="flex:1;display:flex;flex-direction:column;padding:64px 26px 30px;text-align:center;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="font-size:96px;line-height:1;margin-bottom:8px;animation:ed-bob 3s ease-in-out infinite;">🤓</div>
+                  <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;letter-spacing:-.02em;margin:14px 0 12px;line-height:1.05;">Vamos te conhecer<br>melhor</h2>
+                  <p style="font-size:17px;color:#5B6B62;line-height:1.5;max-width:280px;margin:0;">São só <b style="color:#16A34A;">8 minutinhos</b>. Sem certo ou errado — tudo serve pra montar sua trilha. 🌱</p>
+                  <div style="display:flex;gap:9px;margin-top:30px;">
+                    <span style="width:11px;height:11px;border-radius:50%;background:#16A34A;"></span>
+                    <span style="width:11px;height:11px;border-radius:50%;background:#D4E9DB;"></span>
+                    <span style="width:11px;height:11px;border-radius:50%;background:#D4E9DB;"></span>
+                    <span style="width:11px;height:11px;border-radius:50%;background:#D4E9DB;"></span>
+                    <span style="width:11px;height:11px;border-radius:50%;background:#D4E9DB;"></span>
+                  </div>
+                </div>
+                <button onClick="{{ nextDiag }}" style="width:100%;border:none;cursor:pointer;background:linear-gradient(150deg,#22C55E,#15803D);color:#fff;font-family:'Plus Jakarta Sans';font-weight:800;font-size:18px;padding:18px;border-radius:20px;box-shadow:0 14px 30px rgba(22,163,74,.32);">Vamos lá! 🚀</button>
+              </div>
+              </sc-if>
+
+              <!-- task steps (audio/photo/quiz/reading) share chrome -->
+              <sc-if value="{{ diagTask }}">
+              <div style="flex:1;display:flex;flex-direction:column;padding:60px 24px 26px;">
+                <!-- stepper -->
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+                  <button onClick="{{ goLauncher }}" style="border:none;background:#F0EBDF;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:16px;color:#5B6B62;min-height:0;flex:none;">←</button>
+                  <div style="flex:1;display:flex;gap:6px;">
+                    <sc-for list="{{ dots }}" as="d" hint-placeholder-count="5">
+                      <span style="flex:1;height:7px;border-radius:99px;background:{{ d.bg }};"></span>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="font-size:13px;font-weight:700;color:#16A34A;letter-spacing:.04em;margin-bottom:18px;">{{ diagStepLabel }}</div>
+
+                <!-- AUDIO -->
+                <sc-if value="{{ diagAudio }}">
+                <div style="flex:1;display:flex;flex-direction:column;">
+                  <span style="font-size:34px;">🎤</span>
+                  <h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:23px;line-height:1.15;margin:10px 0 0;">Conte algo que você fez no fim de semana</h3>
+                  <p style="font-size:15px;color:#5B6B62;margin:10px 0 0;line-height:1.45;">Do jeito que você quiser, sem pressa.</p>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;">
+                    <div style="display:flex;align-items:center;gap:4px;height:64px;">
+                      <sc-for list="{{ waveBars }}" as="w" hint-placeholder-count="13">
+                        <span style="width:5px;height:48px;border-radius:99px;background:{{ w.color }};transform-origin:center;animation:ed-wave {{ w.dur }} ease-in-out {{ w.delay }} infinite;animation-play-state:{{ wavePlay }};"></span>
+                      </sc-for>
+                    </div>
+                    <button onClick="{{ toggleRecord }}" style="width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;background:{{ recBg }};display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 14px 30px rgba(229,72,77,.28);animation:{{ recAnim }};min-height:0;">{{ recIcon }}</button>
+                    <span style="font-family:'Space Mono';font-size:15px;color:#5B6B62;">{{ recLabel }}</span>
+                  </div>
+                  <button onClick="{{ nextDiag }}" style="width:100%;border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:800;font-size:17px;padding:17px;border-radius:18px;min-height:0;">Continuar →</button>
+                </div>
+                </sc-if>
+
+                <!-- PHOTO -->
+                <sc-if value="{{ diagPhoto }}">
+                <div style="flex:1;display:flex;flex-direction:column;">
+                  <span style="font-size:34px;">✍️</span>
+                  <h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:23px;line-height:1.15;margin:10px 0 0;">Escreva à mão e tire uma foto</h3>
+                  <p style="font-size:15px;color:#5B6B62;margin:10px 0 0;line-height:1.45;">Numa folha, escreva <b style="color:#15241C;">“Hoje eu aprendi…”</b> e complete.</p>
+                  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:18px 0;">
+                    <div style="position:relative;width:100%;aspect-ratio:4/3;border-radius:20px;background:#10241B;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                      <div style="position:absolute;inset:22px;border:3px dashed rgba(255,255,255,.55);border-radius:14px;"></div>
+                      <span style="color:rgba(255,255,255,.6);font-size:13px;font-family:'Space Mono';">enquadre a folha</span>
+                      <span style="position:absolute;top:12px;left:12px;width:22px;height:22px;border-top:3px solid #5BE39A;border-left:3px solid #5BE39A;border-radius:5px 0 0 0;"></span>
+                      <span style="position:absolute;bottom:12px;right:12px;width:22px;height:22px;border-bottom:3px solid #5BE39A;border-right:3px solid #5BE39A;border-radius:0 0 5px 0;"></span>
+                    </div>
+                  </div>
+                  <button onClick="{{ nextDiag }}" style="width:100%;border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:800;font-size:17px;padding:17px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:0;">📷 Tirar foto</button>
+                </div>
+                </sc-if>
+
+                <!-- QUIZ -->
+                <sc-if value="{{ diagQuiz }}">
+                <div style="flex:1;display:flex;flex-direction:column;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:13px;font-weight:700;color:#5B6B62;">Pergunta 2 de 5</span>
+                    <span style="font-family:'Space Mono';font-size:13px;color:#F59E0B;">⏱ 0:24</span>
+                  </div>
+                  <div style="height:6px;border-radius:99px;background:#EFE9DC;overflow:hidden;margin-bottom:18px;"><div style="width:40%;height:100%;background:#16A34A;border-radius:99px;"></div></div>
+                  <h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:22px;line-height:1.2;margin:0 0 18px;">Se uma pizza é dividida em 8 fatias e você come 2, que fração você comeu?</h3>
+                  <div style="display:flex;flex-direction:column;gap:11px;">
+                    <sc-for list="{{ quizOptions }}" as="o" hint-placeholder-count="4">
+                      <button onClick="{{ o.onClick }}" style="text-align:left;cursor:pointer;border:2px solid {{ o.border }};background:{{ o.bg }};color:{{ o.fg }};font-family:'Plus Jakarta Sans';font-weight:700;font-size:17px;padding:16px 18px;border-radius:16px;display:flex;align-items:center;gap:13px;min-height:56px;">
+                        <span style="width:28px;height:28px;border-radius:9px;background:{{ o.tagBg }};color:{{ o.tagFg }};display:flex;align-items:center;justify-content:center;font-size:14px;flex:none;">{{ o.tag }}</span>
+                        {{ o.label }}
+                      </button>
+                    </sc-for>
+                  </div>
+                  <div style="flex:1;"></div>
+                  <button onClick="{{ nextDiag }}" style="width:100%;border:none;cursor:pointer;background:{{ quizNextBg }};color:{{ quizNextFg }};font-weight:800;font-size:17px;padding:17px;border-radius:18px;min-height:0;transition:.2s;">Próxima →</button>
+                </div>
+                </sc-if>
+
+                <!-- READING -->
+                <sc-if value="{{ diagReading }}">
+                <div style="flex:1;display:flex;flex-direction:column;">
+                  <span style="font-size:34px;">📖</span>
+                  <h3 style="font-family:'Bricolage Grotesque';font-weight:700;font-size:23px;line-height:1.15;margin:10px 0 0;">Leia em voz alta</h3>
+                  <p style="font-size:14px;color:#5B6B62;margin:8px 0 0;">Pode pausar e recomeçar quantas vezes quiser. 💚</p>
+                  <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:22px;margin:18px 0;box-shadow:0 6px 20px rgba(18,38,28,.05);">
+                    <p style="font-size:21px;line-height:1.6;font-weight:600;margin:0;color:#15241C;">A horta da escola deu muitos tomates este ano. As crianças regaram as plantas todos os dias e ficaram felizes com a colheita.</p>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+                    <div style="display:flex;align-items:center;gap:4px;height:50px;">
+                      <sc-for list="{{ waveBars }}" as="w" hint-placeholder-count="13">
+                        <span style="width:5px;height:40px;border-radius:99px;background:{{ w.color }};transform-origin:center;animation:ed-wave {{ w.dur }} ease-in-out {{ w.delay }} infinite;animation-play-state:{{ wavePlay }};"></span>
+                      </sc-for>
+                    </div>
+                    <button onClick="{{ toggleRecord }}" style="width:80px;height:80px;border-radius:50%;border:none;cursor:pointer;background:{{ recBg }};display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 12px 26px rgba(229,72,77,.26);animation:{{ recAnim }};min-height:0;">{{ recIcon }}</button>
+                  </div>
+                  <button onClick="{{ nextDiag }}" style="width:100%;border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:800;font-size:17px;padding:17px;border-radius:18px;min-height:0;">Continuar →</button>
+                </div>
+                </sc-if>
+              </div>
+              </sc-if>
+
+              <!-- WAIT -->
+              <sc-if value="{{ diagWait }}">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 30px;text-align:center;">
+                <div style="position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+                  <div style="position:absolute;inset:0;border-radius:50%;border:5px solid #E4F1E8;"></div>
+                  <div style="position:absolute;inset:0;border-radius:50%;border:5px solid transparent;border-top-color:#16A34A;border-right-color:#16A34A;animation:ed-spin 1.1s linear infinite;"></div>
+                  <span style="font-size:62px;animation:ed-pulse 1.6s ease-in-out infinite;">🌱</span>
+                </div>
+                <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;margin:24px 0 14px;">Estamos analisando…</h2>
+                <p style="font-size:17px;color:#16A34A;font-weight:600;line-height:1.45;min-height:48px;max-width:260px;">{{ waitMsg }}</p>
+                <p style="font-size:14px;color:#9AA89F;margin-top:12px;">Isso leva menos de 1 minuto.</p>
+              </div>
+              </sc-if>
+
+              <!-- RESULT -->
+              <sc-if value="{{ diagResult }}">
+              <div style="min-height:100%;padding:62px 22px 30px;position:relative;">
+                <sc-for list="{{ confetti }}" as="c" hint-placeholder-count="0">
+                  <span style="position:absolute;top:-10px;left:{{ c.left }};width:9px;height:14px;background:{{ c.color }};border-radius:2px;animation:ed-fall {{ c.dur }} linear {{ c.delay }} forwards;z-index:5;"></span>
+                </sc-for>
+                <div style="text-align:center;position:relative;z-index:6;">
+                  <div style="font-size:64px;animation:ed-pop .6s ease;">🎉</div>
+                  <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:27px;line-height:1.1;margin:10px 0 6px;">Sua trilha está pronta, Ana!</h2>
+                  <p style="font-size:15px;color:#5B6B62;margin:0 0 22px;">Olha só o que descobrimos sobre você 👇</p>
+                </div>
+                <div style="display:flex;gap:12px;margin-bottom:12px;position:relative;z-index:6;">
+                  <div style="flex:1;background:linear-gradient(155deg,#16A34A,#0B5132);color:#fff;border-radius:20px;padding:18px;box-shadow:0 12px 28px rgba(11,81,50,.25);">
+                    <div style="font-size:12px;opacity:.85;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Seu nível</div>
+                    <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;margin-top:6px;line-height:1.1;">EJA<br>Fund. II</div>
+                    <div style="font-size:30px;margin-top:6px;">🌿</div>
+                  </div>
+                  <div style="flex:1;background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:18px;">
+                    <div style="font-size:12px;color:#9AA89F;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Você aprende</div>
+                    <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;margin-top:6px;line-height:1.1;color:#16A34A;">Visual<br>+ Vídeos</div>
+                    <div style="font-size:30px;margin-top:6px;">🎬</div>
+                  </div>
+                </div>
+                <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:18px;margin-bottom:12px;position:relative;z-index:6;">
+                  <div style="font-size:13px;font-weight:700;color:#15241C;margin-bottom:11px;">Seus pontos fortes</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <span style="background:#EAF8EF;color:#15803D;font-weight:700;font-size:13px;padding:7px 13px;border-radius:99px;">Interpretação</span>
+                    <span style="background:#FEF1D6;color:#B45309;font-weight:700;font-size:13px;padding:7px 13px;border-radius:99px;">Vocabulário</span>
+                    <span style="background:#E8F1FF;color:#1D5FBF;font-weight:700;font-size:13px;padding:7px 13px;border-radius:99px;">Atenção</span>
+                  </div>
+                </div>
+                <button onClick="{{ finishDiag }}" style="width:100%;border:none;cursor:pointer;background:linear-gradient(150deg,#22C55E,#15803D);color:#fff;font-weight:800;font-size:18px;padding:18px;border-radius:20px;box-shadow:0 14px 30px rgba(22,163,74,.32);position:relative;z-index:6;">Começar trilha! 🚀</button>
+              </div>
+              </sc-if>
+            </div>
+            </sc-if>
+
+            <!-- ===== DASHBOARD ===== -->
+            <sc-if value="{{ showDash }}">
+            <div style="padding:56px 18px 110px;">
+              <!-- header -->
+              <div style="display:flex;align-items:center;gap:13px;margin-bottom:18px;">
+                <div style="width:50px;height:50px;border-radius:16px;background:linear-gradient(150deg,#FF8A5B,#FF6B5E);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;flex:none;box-shadow:0 8px 18px rgba(255,107,94,.3);">A</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;color:#5B6B62;">Bom dia,</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;line-height:1.1;">Ana 🌱</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;background:#FEF1D6;border:1px solid #FADFA8;padding:8px 13px;border-radius:99px;">
+                  <span style="font-size:18px;animation:ed-pulse 2s ease-in-out infinite;">🔥</span>
+                  <span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;color:#B45309;">7</span>
+                </div>
+              </div>
+
+              <!-- XP card -->
+              <div style="background:linear-gradient(150deg,#16A34A,#0B5132);border-radius:24px;padding:20px;color:#fff;box-shadow:0 16px 36px rgba(11,81,50,.28);position:relative;overflow:hidden;margin-bottom:16px;">
+                <div style="position:absolute;right:-14px;bottom:-20px;font-size:96px;opacity:.16;">🌿</div>
+                <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;">
+                  <div>
+                    <div style="font-size:13px;opacity:.85;font-weight:600;">Nível 3 · Muda</div>
+                    <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;line-height:1;margin-top:3px;">1.450 XP</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,.18);padding:6px 11px;border-radius:99px;font-size:13px;font-weight:700;">+10 hoje 🎉</div>
+                </div>
+                <div style="position:relative;margin-top:16px;height:11px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden;"><div style="width:78%;height:100%;background:#9BFFC4;border-radius:99px;"></div></div>
+                <div style="position:relative;font-size:12px;opacity:.9;margin-top:7px;">50 XP para o <b>Nível 4 · Arvorezinha 🌳</b></div>
+              </div>
+
+              <!-- trilha de hoje -->
+              <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 2px 11px;">
+                <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin:0;">Sua trilha de hoje</h3>
+                <span style="font-size:13px;color:#9AA89F;font-weight:600;">1 de 3 ✓</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:18px;">
+                <sc-for list="{{ trail }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.onClick }}" style="text-align:left;cursor:pointer;border:1px solid #ECE5D6;background:#fff;border-radius:20px;padding:13px;display:flex;align-items:center;gap:13px;box-shadow:0 6px 16px rgba(18,38,28,.05);min-height:0;">
+                    <div style="width:58px;height:58px;border-radius:15px;background:{{ t.thumbBg }};display:flex;align-items:center;justify-content:center;font-size:26px;flex:none;position:relative;">{{ t.icon }}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:12px;font-weight:700;color:{{ t.tagColor }};text-transform:uppercase;letter-spacing:.04em;">{{ t.kind }}</div>
+                      <div style="font-weight:700;font-size:15px;line-height:1.2;margin:2px 0;color:#15241C;">{{ t.title }}</div>
+                      <div style="font-size:12px;color:#9AA89F;">{{ t.meta }}</div>
+                    </div>
+                    <span style="font-size:22px;flex:none;">{{ t.status }}</span>
+                  </button>
+                </sc-for>
+              </div>
+
+              <!-- revisão pendente -->
+              <button onClick="{{ goReview }}" style="width:100%;text-align:left;cursor:pointer;border:none;background:linear-gradient(150deg,#FFB938,#F59E0B);border-radius:22px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 14px 30px rgba(245,158,11,.3);margin-bottom:18px;min-height:0;">
+                <div style="width:50px;height:50px;border-radius:15px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:26px;flex:none;">📚</div>
+                <div style="flex:1;color:#fff;">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:17px;">5 revisões pra hoje</div>
+                  <div style="font-size:13px;opacity:.92;">Revisar no tempo certo guarda +80% na memória</div>
+                </div>
+                <span style="color:#fff;font-size:22px;">→</span>
+              </button>
+
+              <!-- progresso -->
+              <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+                  <span style="font-size:14px;font-weight:700;">Módulo: Frações no dia a dia</span>
+                  <span style="font-size:13px;color:#16A34A;font-weight:700;">6/12</span>
+                </div>
+                <div style="height:9px;border-radius:99px;background:#EFE9DC;overflow:hidden;"><div style="width:50%;height:100%;background:linear-gradient(90deg,#22C55E,#16A34A);border-radius:99px;"></div></div>
+              </div>
+            </div>
+            </sc-if>
+
+            <!-- ===== PLAYER (vídeo interativo) ===== -->
+            <sc-if value="{{ showPlayer }}">
+            <div style="min-height:100%;background:#FBF7EF;padding-bottom:30px;">
+              <div style="position:relative;width:100%;height:236px;background:radial-gradient(circle at 50% 38%, #1E4030, #0B1410);display:flex;align-items:center;justify-content:center;">
+                <button onClick="{{ goBackDash }}" style="position:absolute;top:52px;left:14px;width:38px;height:38px;border-radius:12px;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:18px;cursor:pointer;z-index:3;min-height:0;">←</button>
+                <div style="width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;font-size:24px;color:#16A34A;box-shadow:0 10px 30px rgba(0,0,0,.35);padding-left:4px;">▶</div>
+                <div style="position:absolute;left:16px;bottom:14px;right:16px;color:#fff;">
+                  <div style="font-size:10px;opacity:.65;font-family:'Space Mono';letter-spacing:.05em;">YOUTUBE · LICENÇA CC BY</div>
+                  <div style="font-weight:700;font-size:15px;margin-top:2px;">Frações na cozinha — Aula 3</div>
+                </div>
+              </div>
+
+              <!-- control bar -->
+              <div style="background:#fff;border-bottom:1px solid #ECE5D6;padding:16px;">
+                <div style="position:relative;height:8px;border-radius:99px;background:#EFE9DC;margin:2px 0 12px;">
+                  <div style="position:absolute;left:0;top:0;height:100%;width:38%;background:#16A34A;border-radius:99px;"></div>
+                  <button onClick="{{ openExercise }}" style="position:absolute;left:38%;top:50%;transform:translate(-50%,-50%) rotate(45deg);width:15px;height:15px;background:#F59E0B;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 7px rgba(245,158,11,.5);padding:0;min-height:0;border-radius:3px;animation:ed-pulse 1.8s ease-in-out infinite;"></button>
+                  <span style="position:absolute;left:66%;top:50%;transform:translate(-50%,-50%) rotate(45deg);width:13px;height:13px;background:#D6CBB0;border:2px solid #fff;border-radius:3px;"></span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-family:'Space Mono';font-size:12px;color:#5B6B62;">2:18 / 6:04</span>
+                  <span style="font-size:12px;color:#B45309;font-weight:700;background:#FEF1D6;padding:4px 10px;border-radius:99px;">⬥ Toque no marcador laranja</span>
+                </div>
+              </div>
+
+              <!-- content -->
+              <div style="padding:18px 16px 0;">
+                <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;margin:0 0 4px;line-height:1.15;">Frações na cozinha</h2>
+                <p style="font-size:13px;color:#9AA89F;margin:0 0 16px;">Canal Aprende+ · 6 min · Nível EJA Fund. II</p>
+                <div style="display:flex;gap:8px;margin-bottom:14px;">
+                  <span style="font-weight:700;font-size:13px;color:#16A34A;background:#EAF8EF;padding:8px 14px;border-radius:99px;">Resumo</span>
+                  <span style="font-weight:700;font-size:13px;color:#9AA89F;background:#F3EEE2;padding:8px 14px;border-radius:99px;">Exercícios</span>
+                  <span style="font-weight:700;font-size:13px;color:#9AA89F;background:#F3EEE2;padding:8px 14px;border-radius:99px;">Transcrição</span>
+                </div>
+                <div style="background:#fff;border:1px solid #ECE5D6;border-radius:18px;padding:16px;box-shadow:0 6px 16px rgba(18,38,28,.05);">
+                  <div style="display:flex;gap:7px;margin-bottom:12px;">
+                    <span style="font-size:12px;font-weight:700;color:#fff;background:#16A34A;padding:5px 12px;border-radius:99px;">Básico</span>
+                    <span style="font-size:12px;font-weight:700;color:#5B6B62;background:#F3EEE2;padding:5px 12px;border-radius:99px;">Intermediário</span>
+                  </div>
+                  <p style="font-size:15px;line-height:1.6;color:#3A4A41;margin:0;">Uma <b style="color:#15241C;">fração</b> mostra uma parte de um todo. Numa receita, se você usa metade de um pacote, usou <b style="color:#16A34A;">1/2</b>. O número de baixo diz em quantas partes dividimos; o de cima, quantas usamos. 🍰</p>
+                </div>
+              </div>
+            </div>
+            </sc-if>
+
+            <!-- ===== CHAT — Edu ===== -->
+            <sc-if value="{{ showChat }}">
+            <div style="height:100%;display:flex;flex-direction:column;background:#FBF7EF;">
+              <!-- header -->
+              <div style="padding:50px 16px 12px;background:#fff;border-bottom:1px solid #ECE5D6;display:flex;align-items:center;gap:11px;">
+                <button onClick="{{ goBackDash }}" style="border:none;background:#F0EBDF;width:36px;height:36px;border-radius:11px;cursor:pointer;font-size:16px;color:#5B6B62;min-height:0;flex:none;">←</button>
+                <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(150deg,#22C55E,#15803D);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;">🤖</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:17px;line-height:1;">Edu</div>
+                  <div style="font-size:12px;color:#16A34A;font-weight:600;margin-top:2px;">● Online · seu tutor</div>
+                </div>
+                <span style="font-size:11px;font-weight:700;color:#2D7FF9;background:#E8F1FF;padding:6px 11px;border-radius:99px;">📹 Frações</span>
+              </div>
+              <!-- messages -->
+              <div style="flex:1;overflow-y:auto;padding:18px 14px;display:flex;flex-direction:column;gap:12px;">
+                <sc-for list="{{ messages }}" as="m" hint-placeholder-count="1">
+                  <div style="display:flex;justify-content:{{ m.justify }};">
+                    <div style="max-width:80%;background:{{ m.bg }};color:{{ m.fg }};border:1px solid {{ m.border }};padding:12px 15px;border-radius:{{ m.radius }};font-size:15px;line-height:1.5;box-shadow:0 3px 10px rgba(18,38,28,.05);">{{ m.text }}</div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ typing }}">
+                <div style="display:flex;justify-content:flex-start;">
+                  <div style="background:#fff;border:1px solid #ECE5D6;padding:14px 18px;border-radius:18px 18px 18px 5px;display:flex;gap:5px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#16A34A;animation:ed-dots 1.2s ease-in-out infinite;"></span>
+                    <span style="width:8px;height:8px;border-radius:50%;background:#16A34A;animation:ed-dots 1.2s ease-in-out .2s infinite;"></span>
+                    <span style="width:8px;height:8px;border-radius:50%;background:#16A34A;animation:ed-dots 1.2s ease-in-out .4s infinite;"></span>
+                  </div>
+                </div>
+                </sc-if>
+              </div>
+              <!-- quick replies -->
+              <div style="display:flex;gap:8px;padding:0 14px 10px;flex-wrap:wrap;">
+                <button onClick="{{ quickAsk1 }}" style="border:1px solid #CFE9D8;background:#fff;color:#15803D;font-weight:600;font-size:13px;padding:9px 14px;border-radius:99px;cursor:pointer;min-height:0;">O que é fração? 🤔</button>
+                <button onClick="{{ quickAsk2 }}" style="border:1px solid #CFE9D8;background:#fff;color:#15803D;font-weight:600;font-size:13px;padding:9px 14px;border-radius:99px;cursor:pointer;min-height:0;">Me dá um exemplo</button>
+              </div>
+              <!-- input -->
+              <sc-if value="{{ chatDisabled }}">
+              <div style="padding:14px;background:#FBF3E4;border-top:1px solid #ECE5D6;display:flex;align-items:center;gap:10px;justify-content:center;color:#B45309;font-size:13.5px;font-weight:600;">
+                <span style="font-size:17px;">📵</span> O Edu só está disponível com internet
+              </div>
+              </sc-if>
+              <sc-if value="{{ chatEnabled }}">
+              <div style="padding:10px 14px 16px;background:#fff;border-top:1px solid #ECE5D6;display:flex;gap:9px;align-items:center;">
+                <input ref="{{ inputRef }}" placeholder="Escreva pro Edu…" style="flex:1;border:1px solid #E1DAC9;background:#FBF7EF;border-radius:99px;padding:13px 16px;font-family:'Plus Jakarta Sans';font-size:15px;outline:none;color:#15241C;" />
+                <button onClick="{{ sendChat }}" style="width:46px;height:46px;border-radius:50%;border:none;background:#16A34A;color:#fff;font-size:18px;cursor:pointer;flex:none;min-height:0;box-shadow:0 6px 16px rgba(22,163,74,.3);">↑</button>
+              </div>
+              </sc-if>
+            </div>
+            </sc-if>
+
+            <!-- ===== REVISÃO SRS ===== -->
+            <sc-if value="{{ showReview }}">
+            <div style="height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,#E8F6EE 0%,#F3EFF8 100%);">
+              <sc-if value="{{ cardActive }}">
+              <div style="height:100%;display:flex;flex-direction:column;padding:52px 18px 22px;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                  <button onClick="{{ goBackDash }}" style="border:none;background:rgba(255,255,255,.7);width:36px;height:36px;border-radius:11px;cursor:pointer;font-size:16px;color:#5B6B62;min-height:0;flex:none;">✕</button>
+                  <div style="flex:1;">
+                    <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:16px;line-height:1;">Revisão de hoje</div>
+                    <div style="font-size:12px;color:#5B6B62;margin-top:2px;">{{ cardPos }}</div>
+                  </div>
+                  <span style="font-size:20px;">📚</span>
+                </div>
+                <div style="height:8px;border-radius:99px;background:rgba(255,255,255,.6);overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:{{ cardProgress }};background:#16A34A;border-radius:99px;transition:width .3s;"></div></div>
+
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+                  <!-- FRONT -->
+                  <sc-if value="{{ cardFront }}">
+                  <div style="background:#fff;border-radius:26px;padding:28px 24px;box-shadow:0 20px 50px rgba(18,38,28,.12);text-align:center;">
+                    <span style="font-size:12px;font-weight:700;color:#16A34A;background:#EAF8EF;padding:6px 13px;border-radius:99px;">{{ card.context }}</span>
+                    <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:27px;line-height:1.2;margin:22px 0 16px;color:#15241C;">{{ card.front }}</h2>
+                    <p style="font-size:14px;color:#9AA89F;margin:0;">Pense na resposta antes de virar… 🤔</p>
+                  </div>
+                  <button onClick="{{ flipCard }}" style="margin-top:18px;width:100%;border:none;cursor:pointer;background:#15241C;color:#fff;font-weight:800;font-size:17px;padding:17px;border-radius:18px;min-height:0;">Ver resposta 🔄</button>
+                  </sc-if>
+                  <!-- BACK -->
+                  <sc-if value="{{ cardBack }}">
+                  <div style="background:#fff;border-radius:26px;padding:26px 24px;box-shadow:0 20px 50px rgba(18,38,28,.12);text-align:center;">
+                    <span style="font-size:12px;font-weight:700;color:#16A34A;background:#EAF8EF;padding:6px 13px;border-radius:99px;">Resposta</span>
+                    <p style="font-size:20px;line-height:1.55;font-weight:600;margin:20px 0 4px;color:#15241C;">{{ card.back }}</p>
+                  </div>
+                  <div style="margin-top:16px;">
+                    <div style="text-align:center;font-size:13px;color:#5B6B62;font-weight:600;margin-bottom:10px;">Como você foi?</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+                      <button onClick="{{ rateBad }}" style="border:none;cursor:pointer;background:#FDE7E7;color:#C5292E;font-weight:700;font-size:14px;padding:14px;border-radius:16px;min-height:0;">😵 Não lembrei</button>
+                      <button onClick="{{ rateHard }}" style="border:none;cursor:pointer;background:#FEEBD6;color:#B45309;font-weight:700;font-size:14px;padding:14px;border-radius:16px;min-height:0;">😓 Difícil</button>
+                      <button onClick="{{ rateGood }}" style="border:none;cursor:pointer;background:#E4F8EC;color:#15803D;font-weight:700;font-size:14px;padding:14px;border-radius:16px;min-height:0;">😊 Bom</button>
+                      <button onClick="{{ rateEasy }}" style="border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:700;font-size:14px;padding:14px;border-radius:16px;min-height:0;">🤩 Fácil ⭐</button>
+                    </div>
+                  </div>
+                  </sc-if>
+                </div>
+              </div>
+              </sc-if>
+
+              <!-- CONCLUSÃO B7 -->
+              <sc-if value="{{ cardDoneShow }}">
+              <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;position:relative;overflow:hidden;">
+                <sc-for list="{{ confetti }}" as="c" hint-placeholder-count="0">
+                  <span style="position:absolute;top:-10px;left:{{ c.left }};width:9px;height:14px;background:{{ c.color }};border-radius:2px;animation:ed-fall {{ c.dur }} linear {{ c.delay }} forwards;"></span>
+                </sc-for>
+                <div style="font-size:74px;animation:ed-pop .6s ease;position:relative;">🎉</div>
+                <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;margin:14px 0 6px;position:relative;">Revisão concluída!</h2>
+                <p style="font-size:15px;color:#5B6B62;margin:0 0 22px;position:relative;">Mandou muito bem hoje. 💪</p>
+                <div style="display:flex;gap:11px;width:100%;max-width:300px;position:relative;">
+                  <div style="flex:1;background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(18,38,28,.07);">
+                    <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#16A34A;">3</div>
+                    <div style="font-size:12px;color:#5B6B62;font-weight:600;">cards revisados</div>
+                  </div>
+                  <div style="flex:1;background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(18,38,28,.07);">
+                    <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#F59E0B;">+20</div>
+                    <div style="font-size:12px;color:#5B6B62;font-weight:600;">XP ganho ⭐</div>
+                  </div>
+                </div>
+                <div style="margin-top:14px;background:#EAF8EF;color:#15803D;font-weight:600;font-size:13px;padding:10px 16px;border-radius:99px;position:relative;">📅 Você verá 3 cards de novo amanhã</div>
+                <button onClick="{{ restartReview }}" style="margin-top:24px;width:100%;max-width:300px;border:none;cursor:pointer;background:linear-gradient(150deg,#22C55E,#15803D);color:#fff;font-weight:800;font-size:17px;padding:17px;border-radius:18px;position:relative;min-height:0;">Voltar ao início 🏠</button>
+              </div>
+              </sc-if>
+            </div>
+            </sc-if>
+
+            <!-- ===== PERFIL ===== -->
+            <sc-if value="{{ showProfile }}">
+            <div style="padding:56px 18px 110px;">
+              <!-- hero -->
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+                <div style="width:66px;height:66px;border-radius:21px;background:linear-gradient(150deg,#FF8A5B,#FF6B5E);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;flex:none;box-shadow:0 10px 24px rgba(255,107,94,.32);">A</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;line-height:1;">Ana Souza</div>
+                  <span style="display:inline-block;margin-top:7px;font-size:12px;font-weight:700;color:#15803D;background:#EAF8EF;padding:5px 12px;border-radius:99px;">🌿 EJA Fundamental II · Nível 3</span>
+                </div>
+                <button style="border:1px solid #ECE5D6;background:#fff;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:16px;min-height:0;flex:none;">✏️</button>
+              </div>
+
+              <!-- stats 2x2 -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:20px;">
+                <div style="background:#FEF1D6;border-radius:18px;padding:16px;">
+                  <div style="font-size:22px;">🔥</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;color:#B45309;margin-top:2px;">7 dias</div>
+                  <div style="font-size:12px;color:#A16207;font-weight:600;">Sequência</div>
+                </div>
+                <div style="background:#EAF8EF;border-radius:18px;padding:16px;">
+                  <div style="font-size:22px;">⭐</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;color:#15803D;margin-top:2px;">1.450</div>
+                  <div style="font-size:12px;color:#16A34A;font-weight:600;">XP total</div>
+                </div>
+                <div style="background:#E8F1FF;border-radius:18px;padding:16px;">
+                  <div style="font-size:22px;">📚</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;color:#1D5FBF;margin-top:2px;">6</div>
+                  <div style="font-size:12px;color:#2D7FF9;font-weight:600;">Módulos</div>
+                </div>
+                <div style="background:#F3E8FF;border-radius:18px;padding:16px;">
+                  <div style="font-size:22px;">✅</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;color:#7C3AED;margin-top:2px;">82%</div>
+                  <div style="font-size:12px;color:#8B5CF6;font-weight:600;">Acertos</div>
+                </div>
+              </div>
+
+              <!-- achievements -->
+              <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin:0 0 12px 2px;">Conquistas</h3>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;">
+                <sc-for list="{{ achievements }}" as="a" hint-placeholder-count="8">
+                  <div style="background:#fff;border:1px solid #ECE5D6;border-radius:16px;padding:11px 6px;text-align:center;opacity:{{ a.op }};">
+                    <div style="font-size:28px;filter:{{ a.filter }};">{{ a.icon }}</div>
+                    <div style="font-size:9.5px;font-weight:700;color:{{ a.nameColor }};margin-top:4px;line-height:1.15;">{{ a.name }}</div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <!-- certificate -->
+              <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin:0 0 12px 2px;">Certificados</h3>
+              <div style="background:linear-gradient(135deg,#0B5132,#16A34A);border-radius:20px;padding:18px;color:#fff;display:flex;align-items:center;gap:14px;margin-bottom:22px;box-shadow:0 12px 28px rgba(11,81,50,.25);">
+                <div style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;flex:none;">
+                  <div style="display:grid;grid-template-columns:repeat(3,4px);gap:2px;">
+                    <span style="width:4px;height:4px;background:#0B5132;"></span><span style="width:4px;height:4px;background:#0B5132;"></span><span style="width:4px;height:4px;background:#fff;"></span><span style="width:4px;height:4px;background:#0B5132;"></span><span style="width:4px;height:4px;background:#fff;"></span><span style="width:4px;height:4px;background:#0B5132;"></span><span style="width:4px;height:4px;background:#fff;"></span><span style="width:4px;height:4px;background:#0B5132;"></span><span style="width:4px;height:4px;background:#0B5132;"></span>
+                  </div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-weight:700;font-size:15px;">Módulo de Alfabetização</div>
+                  <div style="font-size:12px;opacity:.85;font-family:'Space Mono';">EMITIDO 12/03/2026</div>
+                </div>
+                <span style="background:rgba(255,255,255,.22);padding:8px 12px;border-radius:11px;font-size:13px;font-weight:700;">⬇ PDF</span>
+              </div>
+
+              <!-- settings -->
+              <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin:0 0 12px 2px;">Configurações</h3>
+              <div style="background:#fff;border:1px solid #ECE5D6;border-radius:18px;overflow:hidden;">
+                <div style="display:flex;align-items:center;gap:12px;padding:15px;border-bottom:1px solid #F0EBDF;"><span style="font-size:18px;">🔔</span><span style="flex:1;font-weight:600;font-size:14px;">Notificações</span><span style="width:42px;height:24px;background:#16A34A;border-radius:99px;position:relative;"><span style="position:absolute;right:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px;border-bottom:1px solid #F0EBDF;"><span style="font-size:18px;">📥</span><span style="flex:1;font-weight:600;font-size:14px;">Downloads offline</span><span style="font-size:13px;color:#9AA89F;">128 MB ›</span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px;border-bottom:1px solid #F0EBDF;"><span style="font-size:18px;">🌗</span><span style="flex:1;font-weight:600;font-size:14px;">Tema</span><span style="font-size:13px;color:#9AA89F;">Automático ›</span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px;"><span style="font-size:18px;">🔒</span><span style="flex:1;font-weight:600;font-size:14px;color:#5B6B62;">Privacidade (LGPD)</span><span style="font-size:13px;color:#9AA89F;">›</span></div>
+              </div>
+            </div>
+            </sc-if>
+
+            <!-- ===== BIBLIOTECA / EXPLORAR ===== -->
+            <sc-if value="{{ showLibrary }}">
+            <div style="padding:56px 16px 110px;">
+              <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;margin:0 0 14px;letter-spacing:-.02em;">Explorar</h1>
+              <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #E1DAC9;border-radius:15px;padding:12px 15px;margin-bottom:13px;">
+                <span style="color:#9AA89F;font-size:16px;">🔍</span>
+                <input oninput="{{ onLibSearch }}" placeholder="Buscar conteúdo…" style="flex:1;border:none;background:transparent;font-family:'Plus Jakarta Sans';font-size:15px;outline:none;color:#15241C;" />
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;">
+                <sc-for list="{{ libFilters }}" as="f" hint-placeholder-count="4">
+                  <button onClick="{{ f.onClick }}" style="flex:none;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};font-weight:700;font-size:13px;padding:9px 16px;border-radius:99px;cursor:pointer;min-height:0;">{{ f.label }}</button>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ libEmpty }}">
+              <div style="text-align:center;padding:50px 20px;">
+                <div style="font-size:60px;">🔍</div>
+                <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;margin:14px 0 6px;">Nada por aqui ainda</h3>
+                <p style="font-size:14px;color:#5B6B62;line-height:1.5;max-width:240px;margin:0 auto;">Não encontramos esse conteúdo. Tente outra palavra ou filtro. 🌱</p>
+              </div>
+              </sc-if>
+
+              <sc-if value="{{ libGridShow }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <sc-for list="{{ libGrid }}" as="r" hint-placeholder-count="6">
+                  <button onClick="{{ r.onClick }}" style="text-align:left;cursor:pointer;border:1px solid #ECE5D6;background:#fff;border-radius:18px;padding:0;overflow:hidden;box-shadow:0 5px 14px rgba(18,38,28,.05);opacity:{{ r.op }};min-height:0;display:flex;flex-direction:column;">
+                    <div style="position:relative;height:84px;background:{{ r.tagBg }};display:flex;align-items:center;justify-content:center;">
+                      <span style="font-size:34px;">{{ r.icon }}</span>
+                      <span style="position:absolute;top:8px;left:8px;font-size:10px;font-weight:800;color:#fff;background:{{ r.tagFg }};padding:3px 8px;border-radius:99px;">{{ r.tag }}</span>
+                      <span style="position:absolute;bottom:8px;right:8px;font-size:10px;font-weight:700;color:#5B6B62;background:rgba(255,255,255,.9);padding:2px 7px;border-radius:99px;">{{ r.meta }}</span>
+                      <sc-if value="{{ r.locked }}"><span style="position:absolute;inset:0;background:rgba(20,30,24,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;text-align:center;padding:8px;">📥 Disponível<br>quando online</span></sc-if>
+                      <sc-if value="{{ r.offBadge }}"><span style="position:absolute;top:8px;right:8px;font-size:13px;">✅</span></sc-if>
+                    </div>
+                    <div style="padding:11px 12px 13px;flex:1;display:flex;flex-direction:column;">
+                      <div style="font-weight:700;font-size:14px;line-height:1.25;color:#15241C;">{{ r.title }}</div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;">
+                        <span style="font-size:11px;font-weight:700;color:#15803D;background:#EAF8EF;padding:3px 9px;border-radius:99px;">{{ r.level }}</span>
+                        <span style="font-size:12px;color:#F59E0B;letter-spacing:1px;">{{ r.stars }}</span>
+                      </div>
+                      <sc-if value="{{ r.showProgress }}">
+                      <div style="height:5px;border-radius:99px;background:#EFE9DC;overflow:hidden;margin-top:9px;"><div style="height:100%;width:{{ r.pctW }};background:#16A34A;border-radius:99px;"></div></div>
+                      </sc-if>
+                    </div>
+                  </button>
+                </sc-for>
+              </div>
+              </sc-if>
+            </div>
+            </sc-if>
+
+            <!-- ===== LEITOR (PDF/Texto) ===== -->
+            <sc-if value="{{ showReader }}">
+            <div style="min-height:100%;background:#FBF3E4;padding-bottom:40px;">
+              <div style="position:sticky;top:0;background:#FBF3E4;padding:50px 16px 12px;display:flex;align-items:center;gap:11px;border-bottom:1px solid #EBDFC4;z-index:5;">
+                <button onClick="{{ goLibrary }}" style="border:none;background:#EEE2C8;width:36px;height:36px;border-radius:11px;cursor:pointer;font-size:16px;color:#7A6A48;min-height:0;flex:none;">←</button>
+                <div style="flex:1;min-width:0;"><div style="font-weight:800;font-size:15px;color:#3A2F1A;line-height:1.1;">Frações no mercado</div><div style="font-size:11px;color:#9A8C6E;">Leitura · 4 págs</div></div>
+                <div style="display:flex;gap:6px;">
+                  <span style="width:30px;height:30px;border-radius:9px;background:#EEE2C8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#7A6A48;">A-</span>
+                  <span style="width:30px;height:30px;border-radius:9px;background:#3A2F1A;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;">A+</span>
+                </div>
+              </div>
+              <div style="height:4px;background:#EBDFC4;"><div style="height:100%;width:42%;background:#B45309;"></div></div>
+              <div style="padding:22px 22px 0;">
+                <p style="font-size:19px;line-height:1.7;color:#3A2F1A;margin:0 0 16px;">No mercado, as <b style="border-bottom:2px dotted #16A34A;">promoções</b> usam frações o tempo todo. Quando você vê <b style="color:#16A34A;">“1/2 do preço”</b>, significa que vai pagar metade.</p>
+                <p style="font-size:19px;line-height:1.7;color:#3A2F1A;margin:0 0 16px;">Se um produto custa R$ 20 e está pela <b style="border-bottom:2px dotted #16A34A;">metade</b>, você paga R$ 10. Saber frações ajuda a economizar de verdade. 🛒</p>
+                <p style="font-size:19px;line-height:1.7;color:#3A2F1A;margin:0;">Já um desconto de <b style="color:#16A34A;">1/4</b> tira um quarto do valor: de R$ 20, você economiza R$ 5 e paga R$ 15.</p>
+              </div>
+            </div>
+            </sc-if>
+
+          </div>
+
+          <!-- bottom nav -->
+          <sc-if value="{{ showNav }}">
+          <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid #EFE9DC;display:flex;align-items:flex-start;justify-content:space-around;padding:11px 8px 0;z-index:25;">
+            <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+              <button onClick="{{ n.onClick }}" style="border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-height:0;color:{{ n.color }};">
+                <span style="font-size:23px;">{{ n.icon }}</span>
+                <span style="font-size:11px;font-weight:700;">{{ n.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+          </sc-if>
+
+          <!-- player FAB -->
+          <sc-if value="{{ showPlayerFab }}">
+          <button onClick="{{ goChat }}" style="position:absolute;bottom:22px;right:16px;z-index:26;border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:800;font-size:14px;padding:13px 18px;border-radius:99px;box-shadow:0 10px 28px rgba(22,163,74,.45);display:flex;align-items:center;gap:7px;min-height:0;">💬 Tirar dúvida</button>
+          </sc-if>
+
+          <!-- exercise overlay -->
+          <sc-if value="{{ showExercise }}">
+          <div style="position:absolute;inset:0;z-index:40;background:rgba(11,20,16,.55);display:flex;flex-direction:column;justify-content:flex-end;">
+            <div style="background:#fff;border-radius:30px 30px 44px 44px;padding:22px 20px 30px;animation:ed-slideup .3s ease;box-shadow:0 -20px 50px rgba(0,0,0,.3);">
+              <div style="width:42px;height:5px;border-radius:99px;background:#E1DAC9;margin:0 auto 16px;"></div>
+              <span style="font-size:12px;font-weight:700;color:#B45309;background:#FEF1D6;padding:6px 13px;border-radius:99px;">⬥ Desafio do checkpoint</span>
+              <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;line-height:1.2;margin:14px 0 16px;">Quanto é 3/4 de 12 laranjas? 🍊</h3>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <sc-for list="{{ exOptions }}" as="o" hint-placeholder-count="4">
+                  <button onClick="{{ o.onClick }}" style="text-align:left;cursor:pointer;border:2px solid {{ o.border }};background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:16px;padding:15px 18px;border-radius:15px;display:flex;align-items:center;justify-content:space-between;min-height:54px;">{{ o.label }}<span style="font-size:18px;">{{ o.mark }}</span></button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ exAnswered }}">
+              <div style="margin-top:14px;background:{{ exFbBg }};border-radius:16px;padding:14px 16px;">
+                <div style="font-weight:800;font-size:15px;color:{{ exFbFg }};">{{ exFbTitle }}</div>
+                <div style="font-size:14px;color:{{ exFbFg }};opacity:.92;margin-top:3px;line-height:1.4;">{{ exFbText }}</div>
+              </div>
+              <button onClick="{{ continueVideo }}" style="margin-top:14px;width:100%;border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:800;font-size:17px;padding:16px;border-radius:16px;min-height:0;">Continuar vídeo ▶</button>
+              </sc-if>
+            </div>
+          </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ TUTOR (desktop) ============ -->
+  <sc-if value="{{ isTutor }}">
+  <div style="width:100%;min-height:100vh;display:flex;">
+    <!-- sidebar -->
+    <div style="width:236px;flex:none;background:#0B1410;color:#fff;padding:26px 16px;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;">
+      <div style="display:flex;align-items:center;gap:9px;padding:0 8px;margin-bottom:30px;">
+        <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(150deg,#22C55E,#15803D);display:flex;align-items:center;justify-content:center;font-size:19px;">🌱</div>
+        <span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;">EducaDigital</span>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:#5D6E64;text-transform:uppercase;letter-spacing:.08em;padding:0 8px 8px;">Painel do tutor</div>
+      <sc-for list="{{ tNav }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:11px;border:none;cursor:pointer;background:{{ n.bg }};color:{{ n.fg }};font-family:'Plus Jakarta Sans';font-weight:700;font-size:14.5px;padding:12px 14px;border-radius:13px;text-align:left;margin-bottom:4px;min-height:0;">
+          <span style="font-size:18px;">{{ n.icon }}</span><span style="flex:1;">{{ n.label }}</span>
+          <sc-if value="{{ n.badge }}"><span style="background:#FF6B5E;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;">{{ n.badgeText }}</span></sc-if>
+        </button>
+      </sc-for>
+      <div style="flex:1;"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);">
+        <div style="width:36px;height:36px;border-radius:50%;background:#2D7FF9;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none;">M</div>
+        <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:13.5px;">Profa. Márcia</div><div style="font-size:11px;color:#6E7E74;">ONG Recife · 30 alunos</div></div>
+      </div>
+    </div>
+
+    <!-- main -->
+    <div style="flex:1;min-width:0;padding:34px 40px 60px;max-width:1100px;">
+
+      <!-- T1 DASHBOARD -->
+      <sc-if value="{{ tDashShow }}">
+      <div>
+        <div style="margin-bottom:26px;">
+          <div style="font-size:14px;color:#5B6B62;">Terça, 25 de junho</div>
+          <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:30px;margin:2px 0 0;letter-spacing:-.02em;">Bom dia, Márcia 👋</h1>
+        </div>
+        <!-- KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px;">
+          <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(18,38,28,.05);">
+            <div style="font-size:13px;color:#9AA89F;font-weight:600;">Total de alunos</div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;line-height:1;margin-top:8px;">30</div>
+          </div>
+          <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(18,38,28,.05);">
+            <div style="font-size:13px;color:#9AA89F;font-weight:600;">Ativos esta semana</div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;line-height:1;margin-top:8px;color:#16A34A;">22 <span style="font-size:15px;color:#9AA89F;">/ 73%</span></div>
+          </div>
+          <div style="background:#FDECEC;border:1px solid #F6CFCF;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(18,38,28,.05);">
+            <div style="font-size:13px;color:#C5292E;font-weight:700;">Em risco alto/crítico</div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;line-height:1;margin-top:8px;color:#C5292E;">4</div>
+          </div>
+          <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(18,38,28,.05);">
+            <div style="font-size:13px;color:#9AA89F;font-weight:600;">Média de XP / semana</div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;line-height:1;margin-top:8px;color:#F59E0B;">240</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px;">
+          <!-- alerts -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;">
+              <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;margin:0;">⚠️ Alertas urgentes</h2>
+              <button onClick="{{ goAlerts }}" style="border:none;background:transparent;color:#16A34A;font-weight:700;font-size:13px;cursor:pointer;min-height:0;">Ver todos →</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <sc-for list="{{ topAlerts }}" as="a" hint-placeholder-count="2">
+                <div style="background:#fff;border:1px solid #ECE5D6;border-left:4px solid {{ a.riskFg }};border-radius:16px;padding:15px;display:flex;align-items:center;gap:13px;box-shadow:0 6px 16px rgba(18,38,28,.05);">
+                  <div style="width:44px;height:44px;border-radius:13px;background:{{ a.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex:none;">{{ a.initials }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;font-size:15px;">{{ a.name }}</span><span style="font-size:11px;font-weight:800;color:{{ a.riskFg }};background:{{ a.riskBg }};padding:2px 9px;border-radius:99px;">{{ a.riskLabel }}</span></div>
+                    <div style="font-size:13px;color:#5B6B62;margin-top:2px;">{{ a.headline }}</div>
+                  </div>
+                  <button onClick="{{ goAlerts }}" style="border:1px solid #ECE5D6;background:#FBF7EF;font-weight:700;font-size:13px;padding:9px 14px;border-radius:11px;cursor:pointer;min-height:0;flex:none;">Ver</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <!-- weekly engagement -->
+          <div>
+            <h2 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;margin:0 0 13px;">Engajamento (7 dias)</h2>
+            <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:20px;box-shadow:0 6px 16px rgba(18,38,28,.05);">
+              <div style="display:flex;align-items:flex-end;gap:9px;height:130px;">
+                <sc-for list="{{ engBars }}" as="b" hint-placeholder-count="7">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;justify-content:flex-end;height:100%;">
+                    <div style="width:100%;height:{{ b.h }};background:{{ b.color }};border-radius:7px 7px 0 0;"></div>
+                    <span style="font-size:11px;color:#9AA89F;font-weight:600;">{{ b.day }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- T2 ALUNOS -->
+      <sc-if value="{{ tStudentsShow }}">
+      <div>
+        <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;margin:0 0 4px;letter-spacing:-.02em;">Meus alunos</h1>
+        <p style="color:#5B6B62;margin:0 0 20px;font-size:15px;">30 alunos sob sua tutoria</p>
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #ECE5D6;border-radius:14px;padding:11px 16px;"><span style="color:#9AA89F;">🔍</span><span style="color:#9AA89F;font-size:14px;">Buscar por nome…</span></div>
+          <div style="display:flex;gap:8px;">
+            <span style="font-weight:700;font-size:13px;color:#fff;background:#15241C;padding:11px 16px;border-radius:14px;">Todos</span>
+            <span style="font-weight:700;font-size:13px;color:#C5292E;background:#FDECEC;padding:11px 16px;border-radius:14px;">Em risco · 4</span>
+            <span style="font-weight:700;font-size:13px;color:#5B6B62;background:#F3EEE2;padding:11px 16px;border-radius:14px;">Ativos</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+          <sc-for list="{{ studentList }}" as="s" hint-placeholder-count="6">
+            <button onClick="{{ s.onClick }}" style="text-align:left;cursor:pointer;background:#fff;border:1px solid #ECE5D6;border-radius:18px;padding:17px;display:flex;align-items:center;gap:14px;box-shadow:0 5px 14px rgba(18,38,28,.04);min-height:0;">
+              <div style="width:50px;height:50px;border-radius:15px;background:{{ s.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:none;">{{ s.initials }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.name }}</span><span style="font-size:11px;font-weight:800;color:{{ s.riskFg }};background:{{ s.riskBg }};padding:2px 9px;border-radius:99px;">{{ s.riskLabel }}</span></div>
+                <div style="font-size:12.5px;color:#9AA89F;margin:3px 0 7px;">{{ s.level }} · ativo há <span style="color:{{ s.lastColor }};font-weight:700;">{{ s.last }}</span></div>
+                <div style="height:6px;border-radius:99px;background:#EFE9DC;overflow:hidden;"><div style="height:100%;width:{{ s.pctW }};background:#16A34A;border-radius:99px;"></div></div>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- T3 ALUNO INDIVIDUAL -->
+      <sc-if value="{{ tStudentShow }}">
+      <div>
+        <button onClick="{{ goStudents }}" style="border:none;background:transparent;color:#5B6B62;font-weight:700;font-size:13px;cursor:pointer;padding:0;margin-bottom:14px;min-height:0;">← Voltar para alunos</button>
+        <div style="background:#fff;border:1px solid #ECE5D6;border-radius:22px;padding:22px;display:flex;align-items:center;gap:18px;margin-bottom:18px;box-shadow:0 6px 18px rgba(18,38,28,.05);">
+          <div style="width:64px;height:64px;border-radius:19px;background:{{ stu.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:27px;flex:none;">{{ stu.initials }}</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:10px;"><h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;margin:0;">{{ stu.name }}</h1><span style="font-size:12px;font-weight:800;color:{{ stu.riskFg }};background:{{ stu.riskBg }};padding:4px 12px;border-radius:99px;">{{ stu.riskLabel }}</span></div>
+            <div style="font-size:14px;color:#5B6B62;margin-top:4px;">{{ stu.level }} · ativo há {{ stu.last }}</div>
+          </div>
+          <div style="display:flex;gap:22px;">
+            <div style="text-align:center;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;color:#B45309;">🔥 3</div><div style="font-size:11px;color:#9AA89F;font-weight:600;">streak</div></div>
+            <div style="text-align:center;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;color:#16A34A;">820</div><div style="font-size:11px;color:#9AA89F;font-weight:600;">XP</div></div>
+            <div style="text-align:center;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;">4</div><div style="font-size:11px;color:#9AA89F;font-weight:600;">módulos</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;">
+          <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:20px;box-shadow:0 6px 16px rgba(18,38,28,.05);">
+            <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:16px;margin:0 0 14px;">Atividade (14 dias)</h3>
+            <div style="display:flex;align-items:flex-end;gap:5px;height:120px;">
+              <sc-for list="{{ actBars }}" as="b" hint-placeholder-count="14">
+                <div style="flex:1;background:{{ b.color }};height:{{ b.h }};border-radius:4px 4px 0 0;"></div>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#9AA89F;margin-top:8px;"><span>há 14 dias</span><span style="color:#E5484D;font-weight:700;">↓ queda nos últimos 5 dias</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="background:#FDECEC;border:1px solid #F6CFCF;border-radius:18px;padding:17px;">
+              <div style="font-size:13px;font-weight:800;color:#C5292E;margin-bottom:9px;">Fatores de risco ativos</div>
+              <div style="display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:#7A3033;">
+                <div>🔴 5 dias sem acesso</div>
+                <div>🔴 Acertos: 80% → 40%</div>
+                <div>🟠 Sequência quebrada</div>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #ECE5D6;border-radius:18px;padding:17px;">
+              <div style="font-size:13px;font-weight:800;margin-bottom:9px;">Conteúdos com dificuldade</div>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:#5B6B62;">
+                <div style="display:flex;justify-content:space-between;"><span>Frações equivalentes</span><span style="color:#E5484D;font-weight:700;">62% erro</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>Porcentagem</span><span style="color:#F59E0B;font-weight:700;">48% erro</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- T4 ALERTAS -->
+      <sc-if value="{{ tAlertsShow }}">
+      <div>
+        <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;margin:0 0 4px;letter-spacing:-.02em;">Alertas</h1>
+        <p style="color:#5B6B62;margin:0 0 20px;font-size:15px;">Aja antes que o aluno desista — leva 20 segundos.</p>
+        <sc-if value="{{ alertsEmpty }}">
+        <div style="max-width:760px;background:linear-gradient(135deg,#EAF8EF,#F0F8F3);border:1px solid #D6EADE;border-radius:22px;padding:36px;text-align:center;margin-bottom:16px;">
+          <div style="font-size:54px;">✅</div>
+          <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;margin:12px 0 6px;color:#15803D;">Nenhum alerta ativo!</h3>
+          <p style="font-size:14.5px;color:#3A4A41;margin:0;">Sua turma está indo bem. Continue assim. 🌱</p>
+        </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:760px;">
+          <sc-for list="{{ alertCards }}" as="a" hint-placeholder-count="2">
+            <div style="background:#fff;border:1px solid #ECE5D6;border-radius:22px;padding:22px;box-shadow:0 8px 22px rgba(18,38,28,.06);opacity:{{ a.op }};">
+              <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
+                <div style="width:48px;height:48px;border-radius:14px;background:{{ a.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;flex:none;">{{ a.initials }}</div>
+                <div style="flex:1;"><div style="display:flex;align-items:center;gap:9px;"><span style="font-weight:800;font-size:17px;">{{ a.name }}</span><span style="font-size:11px;font-weight:800;color:{{ a.riskFg }};background:{{ a.riskBg }};padding:3px 11px;border-radius:99px;">{{ a.riskLabel }}</span></div><div style="font-size:12.5px;color:#9AA89F;margin-top:2px;">Alerta gerado {{ a.when }}</div></div>
+                <span style="font-size:13px;font-weight:800;color:{{ a.statusFg }};background:{{ a.statusBg }};padding:7px 14px;border-radius:99px;">{{ a.statusText }}</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <div style="font-size:12px;font-weight:800;color:#5B6B62;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Fatores contribuintes</div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <sc-for list="{{ a.factors }}" as="f" hint-placeholder-count="3"><div style="font-size:13.5px;color:#3A4A41;display:flex;gap:7px;"><span style="color:#E5484D;">•</span>{{ f.t }}</div></sc-for>
+                  </div>
+                  <div style="font-size:12px;font-weight:800;color:#16A34A;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px;">Ação sugerida (IA)</div>
+                  <div style="font-size:13.5px;color:#3A4A41;line-height:1.45;">{{ a.suggestion }}</div>
+                </div>
+                <div style="background:#F0F8F3;border:1px solid #D6EADE;border-radius:16px;padding:15px;display:flex;flex-direction:column;">
+                  <div style="font-size:12px;font-weight:800;color:#16A34A;margin-bottom:8px;">💬 Mensagem sugerida</div>
+                  <div style="font-size:14px;color:#15241C;line-height:1.5;flex:1;">{{ a.message }}</div>
+                  <button style="margin-top:12px;border:1px solid #16A34A;background:#fff;color:#16A34A;font-weight:700;font-size:13px;padding:9px;border-radius:11px;cursor:pointer;min-height:0;">📋 Copiar mensagem</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:16px;">
+                <button onClick="{{ a.onResolve }}" style="flex:1;border:none;cursor:pointer;background:#16A34A;color:#fff;font-weight:800;font-size:14px;padding:12px;border-radius:13px;min-height:0;">✓ Já fiz contato</button>
+                <button style="border:1px solid #ECE5D6;background:#fff;color:#5B6B62;font-weight:700;font-size:14px;padding:12px 20px;border-radius:13px;cursor:pointer;min-height:0;">Ignorar</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- T5 ANÁLISES -->
+      <sc-if value="{{ tAnalyticsShow }}">
+      <div>
+        <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;margin:0 0 4px;letter-spacing:-.02em;">Análises da turma</h1>
+        <p style="color:#5B6B62;margin:0 0 22px;font-size:15px;">Visão geral de engajamento e dificuldades.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:18px;">
+          <!-- donut -->
+          <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:22px;box-shadow:0 6px 16px rgba(18,38,28,.05);">
+            <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:16px;margin:0 0 18px;">Distribuição por nível EJA</h3>
+            <div style="display:flex;align-items:center;gap:22px;">
+              <div style="width:130px;height:130px;border-radius:50%;background:{{ donutGradient }};flex:none;display:flex;align-items:center;justify-content:center;">
+                <div style="width:78px;height:78px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;">30</span><span style="font-size:10px;color:#9AA89F;font-weight:600;">alunos</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <sc-for list="{{ donut }}" as="d" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:9px;"><span style="width:13px;height:13px;border-radius:4px;background:{{ d.color }};"></span><span style="font-size:13.5px;font-weight:600;color:#15241C;">{{ d.label }}</span><span style="font-size:13px;color:#9AA89F;">{{ d.pct }}%</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <!-- weekly engagement -->
+          <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:22px;box-shadow:0 6px 16px rgba(18,38,28,.05);">
+            <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:16px;margin:0 0 18px;">Engajamento (4 semanas)</h3>
+            <div style="display:flex;align-items:flex-end;gap:24px;height:150px;padding:0 10px;">
+              <sc-for list="{{ weekEng }}" as="w" hint-placeholder-count="4">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;justify-content:flex-end;height:100%;">
+                  <div style="width:100%;max-width:54px;height:{{ w.h }};background:linear-gradient(180deg,#5BE39A,#16A34A);border-radius:9px 9px 0 0;"></div>
+                  <span style="font-size:12px;color:#9AA89F;font-weight:600;">{{ w.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- problematic content -->
+        <div style="background:#fff;border:1px solid #ECE5D6;border-radius:20px;padding:22px;box-shadow:0 6px 16px rgba(18,38,28,.05);max-width:980px;">
+          <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:16px;margin:0 0 16px;">Conteúdos mais problemáticos</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{ problemContent }}" as="p" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:16px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-weight:700;font-size:14.5px;">{{ p.title }}</span><span style="font-size:11px;font-weight:700;color:#9AA89F;background:#F3EEE2;padding:2px 9px;border-radius:99px;">{{ p.kind }}</span></div>
+                  <div style="height:8px;border-radius:99px;background:#EFE9DC;overflow:hidden;"><div style="height:100%;width:{{ p.errW }};background:{{ p.errColor }};border-radius:99px;"></div></div>
+                </div>
+                <div style="text-align:right;flex:none;width:120px;"><span style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;color:{{ p.errColor }};">{{ p.err }}%</span><div style="font-size:11px;color:#9AA89F;">{{ p.n }} alunos · erro</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    portal: 'launcher',
+    screen: 'dash',
+    diagStep: 0,        // 0 intro,1 audio,2 photo,3 quiz,4 reading,5 wait,6 result
+    recording: false,
+    quizSel: null,
+    waitMsgIdx: 0,
+    showExercise: false,
+    exSel: null,
+    exAnswered: false,
+    flipped: false,
+    cardIdx: 0,
+    cardDone: false,
+    cardCount: 0,
+    correctCount: 0,
+    messages: [
+      { me:false, text:'Oi! Eu sou o Edu 🌱 Tô aqui pra te ajudar com qualquer dúvida sobre frações. O que você quer saber?' }
+    ],
+    typing: false,
+    tStudent: 0,
+    resolved: [],
+    offline: false,
+    libFilter: 'todos',
+    libQuery: '',
+  };
+
+  inputRef = React.createRef();
+
+  waitMsgs = [
+    'Entendendo como você aprende melhor…',
+    'Identificando seus pontos fortes…',
+    'Montando sua trilha personalizada…',
+  ];
+
+  cards = [
+    { front:'O que é uma fração?', back:'É uma parte de um todo. Por exemplo, 1/2 é metade de uma pizza dividida em 2 partes iguais. 🍕', context:'Frações — Aula 3' },
+    { front:'Quanto é 1/2 + 1/4 ?', back:'É 3/4. Igualamos os denominadores: 1/2 vira 2/4, então 2/4 + 1/4 = 3/4.', context:'Somando frações' },
+    { front:'O que significa "denominador"?', back:'É o número de baixo da fração — diz em quantas partes o todo foi dividido.', context:'Frações — Aula 1' },
+  ];
+
+  // ---------- navigation ----------
+  goLauncher = () => { this.clearTimers(); this.setState({ portal:'launcher' }); };
+  goAlunoBtn = () => { this.clearTimers(); this.setState({ portal:'aluno', screen:'dash' }); };
+  goTutorBtn = () => { this.clearTimers(); this.setState({ portal:'tutor', screen:'tDash' }); };
+  startOnboarding = () => { this.clearTimers(); this.setState({ portal:'aluno', screen:'diag', diagStep:0, quizSel:null, recording:false }); };
+  nav = (s) => () => this.setState({ screen:s });
+  goReview = () => this.setState({ screen:'review', flipped:false, cardIdx:0, cardDone:false, cardCount:0, correctCount:0 });
+  goPlayer = () => this.setState({ screen:'player', showExercise:false, exSel:null, exAnswered:false });
+
+  // ---------- diagnostic ----------
+  clearTimers = () => { clearInterval(this._wi); clearTimeout(this._wt); };
+  nextDiag = () => {
+    const s = this.state.diagStep;
+    if (s === 4) {
+      this.setState({ diagStep:5, waitMsgIdx:0, recording:false });
+      this.clearTimers();
+      this._wi = setInterval(() => this.setState(st => ({ waitMsgIdx:(st.waitMsgIdx+1)%3 })), 1500);
+      this._wt = setTimeout(() => { this.clearTimers(); this.setState({ diagStep:6 }); }, 4600);
+    } else {
+      this.setState({ diagStep:s+1, quizSel:null, recording:false });
+    }
+  };
+  finishDiag = () => this.setState({ screen:'dash' });
+  toggleRecord = () => this.setState(st => ({ recording: !st.recording }));
+  selectQuiz = (i) => () => this.setState({ quizSel:i });
+
+  // ---------- player exercise ----------
+  openExercise = () => this.setState({ showExercise:true, exSel:null, exAnswered:false });
+  answerEx = (i) => () => this.setState({ exSel:i, exAnswered:true });
+  continueVideo = () => this.setState({ showExercise:false });
+
+  // ---------- chat ----------
+  quickAsk = (text) => () => this.pushUser(text);
+  sendChat = () => {
+    const el = this.inputRef.current;
+    const v = el ? el.value.trim() : '';
+    if (!v) return;
+    if (el) el.value = '';
+    this.pushUser(v);
+  };
+  pushUser = (text) => {
+    this.setState(st => ({ messages:[...st.messages, { me:true, text }], typing:true }));
+    clearTimeout(this._ct);
+    this._ct = setTimeout(() => {
+      this.setState(st => ({ typing:false, messages:[...st.messages, { me:false, text: this.eduReply() }] }));
+    }, 1300);
+  };
+  eduReply = () => {
+    const pool = [
+      'Boa pergunta! Pensa numa pizza 🍕 dividida em partes iguais. A fração diz quantas partes você pegou. Quer que eu mostre um exemplo?',
+      'Vou te explicar passo a passo, com calma. Primeiro, o número de baixo (denominador) diz em quantos pedaços o todo foi dividido. Ficou mais claro? 😊',
+      'Você está indo muito bem! 🌟 Isso é exatamente o que vimos na Aula 3. Quer tentar um exercício rapidinho pra fixar?',
+    ];
+    return pool[this.state.messages.length % pool.length];
+  };
+
+  // ---------- SRS ----------
+  flipCard = () => this.setState({ flipped:true });
+  rateCard = (good) => () => {
+    const last = this.state.cardIdx >= this.cards.length - 1;
+    const cc = this.state.correctCount + (good ? 1 : 0);
+    if (last) {
+      this.setState({ cardDone:true, cardCount:this.cards.length, correctCount:cc });
+    } else {
+      this.setState(st => ({ cardIdx:st.cardIdx+1, flipped:false, correctCount:cc }));
+    }
+  };
+  restartReview = () => this.setState({ screen:'dash' });
+
+  // ---------- library / reader / offline ----------
+  goLibrary = () => this.setState({ screen:'library' });
+  goReader = () => this.setState({ screen:'reader' });
+  setLibFilter = (f) => () => this.setState({ libFilter:f });
+  onLibSearch = (e) => this.setState({ libQuery: e.target.value });
+  toggleOffline = () => this.setState(st => ({ offline: !st.offline }));
+
+  libResources() {
+    return [
+      { id:1, kind:'video', title:'Frações na cozinha', meta:'6 min', level:'Fund. II', stars:'★★☆', icon:'🎬', tagBg:'#EAF8EF', tagFg:'#16A34A', tag:'Vídeo', pct:38, off:true },
+      { id:2, kind:'exercise', title:'Pratique porcentagem', meta:'8 questões', level:'Médio', stars:'★★★', icon:'🎮', tagBg:'#FEF1D6', tagFg:'#B45309', tag:'Exercício', pct:0, off:true },
+      { id:3, kind:'pdf', title:'Frações no mercado', meta:'4 págs', level:'Fund. II', stars:'★★☆', icon:'📄', tagBg:'#E8F1FF', tagFg:'#2D7FF9', tag:'Leitura', pct:0, off:false },
+      { id:4, kind:'video', title:'Leitura de gráficos', meta:'9 min', level:'Médio', stars:'★★★', icon:'🎬', tagBg:'#EAF8EF', tagFg:'#16A34A', tag:'Vídeo', pct:0, off:false },
+      { id:5, kind:'pdf', title:'História do Brasil: República', meta:'7 págs', level:'Médio', stars:'★★☆', icon:'📄', tagBg:'#E8F1FF', tagFg:'#2D7FF9', tag:'Leitura', pct:62, off:true },
+      { id:6, kind:'exercise', title:'Verbos no passado', meta:'6 questões', level:'Fund. I', stars:'★☆☆', icon:'🎮', tagBg:'#FEF1D6', tagFg:'#B45309', tag:'Exercício', pct:0, off:false },
+    ];
+  }
+
+  // ---------- tutor ----------
+  goTutor = (s) => () => this.setState({ screen:s });
+  openStudent = (i) => () => this.setState({ screen:'tStudent', tStudent:i });
+  resolveAlert = (i) => () => this.setState(st => ({ resolved:[...st.resolved, i] }));
+
+  componentDidMount() { try { window.__ed = this; } catch(e){} }
+  componentWillUnmount() { this.clearTimers(); clearTimeout(this._ct); }
+
+  renderVals() {
+    const { portal, screen, diagStep, recording, quizSel } = this.state;
+    const isAluno = portal === 'aluno';
+    const isTutor = portal === 'tutor';
+
+    // diagnostic
+    const taskIdx = diagStep - 1; // audio=0..reading=3? we have 4 tasks shown across 5 dots
+    const dots = [0,1,2,3,4].map(i => ({
+      bg: i < taskIdx ? '#16A34A' : (i === taskIdx ? '#16A34A' : '#E7E1D4')
+    }));
+    const stepNames = ['', 'Passo 1 de 5 · Sua voz', 'Passo 2 de 5 · Sua letra', 'Passo 3 de 5 · Quiz rápido', 'Passo 4 de 5 · Leitura'];
+
+    // wave bars
+    const waveBars = Array.from({ length: 13 }, (_, i) => ({
+      color: i % 3 === 0 ? '#E5484D' : (i % 3 === 1 ? '#FF8A5B' : '#FFB07A'),
+      dur: (0.6 + (i % 4) * 0.18).toFixed(2) + 's',
+      delay: (i * 0.06).toFixed(2) + 's',
+    }));
+
+    // quiz options
+    const qLabels = ['2/8', '1/4', '2/6', '1/8'];
+    const qTags = ['A','B','C','D'];
+    const quizOptions = qLabels.map((label, i) => {
+      const sel = quizSel === i;
+      return {
+        label, tag: qTags[i], onClick: this.selectQuiz(i),
+        bg: sel ? '#EAF8EF' : '#fff',
+        border: sel ? '#16A34A' : '#ECE5D6',
+        fg: '#15241C',
+        tagBg: sel ? '#16A34A' : '#F0EBDF',
+        tagFg: sel ? '#fff' : '#5B6B62',
+      };
+    });
+
+    // confetti
+    const cColors = ['#16A34A','#F59E0B','#FF6B5E','#2D7FF9','#9BFFC4','#FFB938'];
+    const confetti = Array.from({ length: 16 }, (_, i) => ({
+      left: (4 + i * 6) + '%',
+      color: cColors[i % cColors.length],
+      dur: (1.6 + (i % 5) * 0.25).toFixed(2) + 's',
+      delay: ((i % 7) * 0.12).toFixed(2) + 's',
+    }));
+
+    // trail
+    const trail = [
+      { icon:'🎬', kind:'Vídeo · 6 min', title:'Frações na cozinha', meta:'Receita de bolo · feito ✓', status:'✅', thumbBg:'#EAF8EF', tagColor:'#16A34A', onClick:this.goPlayer },
+      { icon:'🎮', kind:'Exercício · 5 questões', title:'Pratique frações', meta:'Ganhe até 30 XP', status:'○', thumbBg:'#FEF1D6', tagColor:'#B45309', onClick:this.goReview },
+      { icon:'📄', kind:'Leitura · 4 min', title:'Frações no mercado', meta:'Promoções e descontos', status:'○', thumbBg:'#E8F1FF', tagColor:'#2D7FF9', onClick:this.goPlayer },
+    ];
+
+    // bottom nav
+    const tab = screen === 'dash' ? 'inicio' : screen === 'library' ? 'explorar' : screen === 'review' ? 'rev' : screen === 'chat' ? 'tutor' : screen === 'profile' ? 'perfil' : '';
+    const navDef = [
+      { id:'inicio', icon:'🏠', label:'Início', onClick:this.nav('dash') },
+      { id:'explorar', icon:'🧭', label:'Explorar', onClick:this.goLibrary },
+      { id:'rev', icon:'🔄', label:'Revisão', onClick:this.goReview },
+      { id:'tutor', icon:'💬', label:'Tutor', onClick:this.nav('chat') },
+      { id:'perfil', icon:'👤', label:'Perfil', onClick:this.nav('profile') },
+    ];
+    const navItems = navDef.map(n => ({ ...n, color: n.id === tab ? '#16A34A' : '#A8B0A8' }));
+
+    // chat
+    const messages = this.state.messages.map(m => ({
+      text:m.text, justify: m.me ? 'flex-end' : 'flex-start',
+      bg: m.me ? '#16A34A' : '#fff', fg: m.me ? '#fff' : '#15241C',
+      border: m.me ? '#16A34A' : '#ECE5D6',
+      radius: m.me ? '18px 18px 5px 18px' : '18px 18px 18px 5px',
+    }));
+
+    // review SRS
+    const card = this.cards[this.state.cardIdx] || this.cards[0];
+    const total = this.cards.length;
+    const cardProgress = Math.round(((this.state.cardIdx + 1) / total) * 100) + '%';
+
+    // player exercise
+    const exCorrect = 1;
+    const exLabels = ['6 laranjas','9 laranjas','12 laranjas','3 laranjas'];
+    const ans = this.state.exAnswered;
+    const exOptions = exLabels.map((label, i) => {
+      const sel = this.state.exSel === i;
+      let bg = '#fff', border = '#ECE5D6', fg = '#15241C', mark = '';
+      if (ans) {
+        if (i === exCorrect) { bg = '#E4F8EC'; border = '#16A34A'; fg = '#15803D'; mark = '✓'; }
+        else if (sel) { bg = '#FDE7E7'; border = '#E5484D'; fg = '#C5292E'; mark = '✕'; }
+        else { fg = '#B8C0B8'; }
+      }
+      return { label, onClick: this.answerEx(i), bg, border, fg, mark };
+    });
+    const exRight = this.state.exSel === exCorrect;
+
+    // achievements
+    const achDef = [
+      { icon:'👣', name:'Primeiro passo', u:true }, { icon:'🔥', name:'7 dias', u:true },
+      { icon:'⭐', name:'Nota 10', u:true }, { icon:'✍️', name:'Escritor', u:true },
+      { icon:'⚡', name:'Velocista', u:false }, { icon:'📖', name:'Leitor ávido', u:false },
+      { icon:'🎓', name:'EJA I', u:false }, { icon:'🏆', name:'Mestre', u:false },
+    ];
+    const achievements = achDef.map(a => ({ icon:a.icon, name:a.name, op:a.u?'1':'.42', filter:a.u?'none':'grayscale(1)', nameColor:a.u?'#15241C':'#B0B8B0' }));
+
+    // tutor
+    const tNavDef = [
+      { id:'tDash', icon:'📊', label:'Dashboard', onClick:this.goTutor('tDash') },
+      { id:'tStudents', icon:'👥', label:'Meus alunos', onClick:this.goTutor('tStudents') },
+      { id:'tAlerts', icon:'🔔', label:'Alertas', onClick:this.goTutor('tAlerts'), badge:true, badgeText:'4' },
+      { id:'tAnalytics', icon:'📈', label:'Análises', onClick:this.goTutor('tAnalytics') },
+    ];
+    const tNav = tNavDef.map(n => {
+      const active = n.id === screen || (n.id === 'tStudents' && screen === 'tStudent');
+      return { ...n, bg: active ? 'rgba(34,197,94,.16)' : 'transparent', fg: active ? '#5BE39A' : '#AEBAB2', badge:!!n.badge, badgeText:n.badgeText || '' };
+    });
+    const alertsRaw = this.alertsData();
+    const topAlerts = alertsRaw.map(a => ({ ...a, headline:a.factors[0] }));
+    const alertCards = alertsRaw.map(a => {
+      const done = this.state.resolved.includes(a.idx);
+      return { ...a, factors:a.factors.map(t => ({ t })), op:done?'.55':'1',
+        statusText:done?'✓ Contato feito':'Pendente', statusBg:done?'#E4F8EC':'#FEF1D6', statusFg:done?'#15803D':'#B45309',
+        onResolve:this.resolveAlert(a.idx) };
+    });
+    const studentList = this.students().map((s, i) => ({ ...s, pctW:s.pct+'%', onClick:this.openStudent(i) }));
+    const stu = this.students()[this.state.tStudent] || this.students()[0];
+    const engVals = [60,82,45,90,72,28,52]; const engDays = ['S','T','Q','Q','S','S','D'];
+    const engBars = engVals.map((v, i) => ({ h:v+'%', day:engDays[i], color: v>=60?'#16A34A':(v>=45?'#5BE39A':'#CDEAD6') }));
+    const actVals = [70,85,60,90,75,80,65,72,55,40,30,20,15,9];
+    const actBars = actVals.map(v => ({ h:Math.max(v,6)+'%', color: v<35?'#E5484D':(v<55?'#F59E0B':'#16A34A') }));
+
+    // library
+    const off = this.state.offline;
+    const q = this.state.libQuery.trim().toLowerCase();
+    const libFilters = [
+      { id:'todos', label:'Todos' }, { id:'video', label:'Vídeo' },
+      { id:'pdf', label:'Leitura' }, { id:'exercise', label:'Exercício' },
+    ].map(f => ({ ...f, onClick:this.setLibFilter(f.id),
+      bg: this.state.libFilter===f.id ? '#15241C' : '#fff',
+      fg: this.state.libFilter===f.id ? '#fff' : '#5B6B62',
+      border: this.state.libFilter===f.id ? '#15241C' : '#ECE5D6' }));
+    const libFiltered = this.libResources().filter(r =>
+      (this.state.libFilter==='todos' || r.kind===this.state.libFilter) &&
+      (q==='' || r.title.toLowerCase().includes(q)));
+    const libGrid = libFiltered.map(r => {
+      const locked = off && !r.off;
+      return { ...r,
+        onClick: locked ? (()=>{}) : (r.kind==='pdf' ? this.goReader : this.goPlayer),
+        locked, op: locked ? '.55' : '1',
+        showProgress: r.pct > 0, pctW: r.pct + '%',
+        offBadge: off && r.off };
+    });
+    const libEmpty = libGrid.length === 0;
+
+    // alerts empty state
+    const pendingAlerts = alertCards.filter(a => a.op === '1');
+    const alertsEmpty = pendingAlerts.length === 0;
+
+    // analytics
+    const levelDist = [
+      { label:'Fund. I', v:6, color:'#8B5CF6' }, { label:'Fund. II', v:14, color:'#16A34A' },
+      { label:'Médio', v:10, color:'#2D7FF9' },
+    ];
+    const distTotal = 30;
+    let acc = 0;
+    const donut = levelDist.map(d => { const start = acc/distTotal*360; acc += d.v; const end = acc/distTotal*360; return { ...d, start, end, pct: Math.round(d.v/distTotal*100) }; });
+    const donutGradient = 'conic-gradient(' + donut.map(d => d.color + ' ' + d.start + 'deg ' + d.end + 'deg').join(', ') + ')';
+    const problemContent = [
+      { title:'Frações equivalentes', kind:'Exercício', err:62, n:18 },
+      { title:'Porcentagem no dia a dia', kind:'Vídeo', err:48, n:22 },
+      { title:'Interpretação de texto', kind:'Leitura', err:41, n:15 },
+      { title:'Verbos no passado', kind:'Exercício', err:33, n:12 },
+    ].map(p => ({ ...p, errW:p.err+'%', errColor: p.err>=55?'#E5484D':(p.err>=40?'#F59E0B':'#16A34A') }));
+    const weekEng = [62,68,71,74].map((v,i) => ({ h:v+'%', label:'Sem '+(i+1) }));
+
+    return {
+      isLauncher: portal === 'launcher', isAluno, isTutor,
+      // switcher
+      swAlunoBg: isAluno ? '#16A34A' : '#F0EBDF', swAlunoFg: isAluno ? '#fff' : '#5B6B62',
+      swTutorBg: isTutor ? '#2D7FF9' : '#F0EBDF', swTutorFg: isTutor ? '#fff' : '#5B6B62',
+      // status bar
+      statusColor: screen === 'player' ? '#fff' : '#15241C',
+      netIcon: '📶',
+      // screen flags
+      showDiag: screen === 'diag',
+      showDash: screen === 'dash',
+      showPlayer: screen === 'player',
+      showChat: screen === 'chat',
+      showReview: screen === 'review',
+      showProfile: screen === 'profile',
+      showNav: screen === 'dash' || screen === 'profile' || screen === 'library',
+      // diag sub-flags
+      diagIntro: diagStep === 0,
+      diagTask: diagStep >= 1 && diagStep <= 4,
+      diagAudio: diagStep === 1,
+      diagPhoto: diagStep === 2,
+      diagQuiz: diagStep === 3,
+      diagReading: diagStep === 4,
+      diagWait: diagStep === 5,
+      diagResult: diagStep === 6,
+      dots, diagStepLabel: stepNames[diagStep] || '',
+      waveBars,
+      wavePlay: recording ? 'running' : 'paused',
+      recBg: recording ? '#E5484D' : '#FF6B5E',
+      recIcon: recording ? '⏸' : '🎤',
+      recAnim: recording ? 'ed-ring 1.4s ease-out infinite' : 'none',
+      recLabel: recording ? 'Gravando… 0:12' : 'Segure para gravar',
+      quizOptions,
+      quizNextBg: quizSel != null ? '#16A34A' : '#E7E1D4',
+      quizNextFg: quizSel != null ? '#fff' : '#A8B0A8',
+      confetti,
+      waitMsg: this.waitMsgs[this.state.waitMsgIdx],
+      trail, navItems,
+      // handlers
+      goLauncher: this.goLauncher, goAlunoBtn: this.goAlunoBtn, goTutorBtn: this.goTutorBtn,
+      startOnboarding: this.startOnboarding, nextDiag: this.nextDiag, finishDiag: this.finishDiag,
+      toggleRecord: this.toggleRecord, goReview: this.goReview, goPlayer: this.goPlayer,
+      goBackDash: this.nav('dash'), goChat: this.nav('chat'),
+      // chat
+      messages, typing: this.state.typing,
+      quickAsk1: this.quickAsk('O que é uma fração? 🤔'),
+      quickAsk2: this.quickAsk('Me dá um exemplo do dia a dia'),
+      sendChat: this.sendChat, inputRef: this.inputRef,
+      // review
+      showReview: screen === 'review',
+      cardActive: !this.state.cardDone, cardDoneShow: this.state.cardDone,
+      cardFront: !this.state.flipped, cardBack: this.state.flipped,
+      card, cardPos: (this.state.cardIdx + 1) + ' de ' + total, cardProgress,
+      flipCard: this.flipCard, restartReview: this.restartReview,
+      rateBad: this.rateCard(false), rateHard: this.rateCard(false),
+      rateGood: this.rateCard(true), rateEasy: this.rateCard(true),
+      // player
+      showPlayerFab: (screen === 'player' || screen === 'reader') && !this.state.showExercise,
+      showExercise: this.state.showExercise && screen === 'player', exAnswered: ans,
+      exOptions, openExercise: this.openExercise, continueVideo: this.continueVideo,
+      exFbBg: exRight ? '#E4F8EC' : '#FEF1D6', exFbFg: exRight ? '#15803D' : '#B45309',
+      exFbTitle: exRight ? 'Isso mesmo! 🎉 +10 XP' : 'Quase lá! 🌱',
+      exFbText: exRight ? '3/4 de 12 = 9 laranjas. Dividiu certinho!' : 'A resposta é 9. Divida 12 por 4 (= 3) e multiplique por 3. Bora juntos!',
+      // profile
+      achievements,
+      // tutor
+      tNav,
+      tDashShow: screen === 'tDash', tStudentsShow: screen === 'tStudents',
+      tStudentShow: screen === 'tStudent', tAlertsShow: screen === 'tAlerts',
+      topAlerts, alertCards, studentList, stu, engBars, actBars,
+      goStudents: this.goTutor('tStudents'), goAlerts: this.goTutor('tAlerts'),
+      // library
+      showLibrary: screen === 'library', goLibrary: this.goLibrary,
+      libFilters, libGrid, libEmpty, libGridShow: !libEmpty, libQuery: this.state.libQuery,
+      onLibSearch: this.onLibSearch,
+      // reader
+      showReader: screen === 'reader',
+      // offline
+      offline: off, toggleOffline: this.toggleOffline,
+      offPillBg: off ? '#FEF1D6' : '#EAF8EF', offPillFg: off ? '#B45309' : '#16A34A',
+      offPillText: off ? '📵 Modo offline' : '📶 Online',
+      offSwBg: off ? '#F59E0B' : '#F0EBDF', offSwFg: off ? '#fff' : '#5B6B62',
+      chatDisabled: off && screen === 'chat', chatEnabled: !(off && screen === 'chat'),
+      // analytics
+      tAnalyticsShow: screen === 'tAnalytics',
+      donutGradient, donut, problemContent, weekEng,
+      // alerts empty
+      alertsEmpty,
+    };
+  }
+
+  // ---------- data ----------
+  students() {
+    return [
+      { name:'Ana Souza', initials:'A', color:'#FF6B5E', level:'EJA Fund. II', risk:'critical', riskLabel:'Crítico', riskBg:'#FDE7E7', riskFg:'#C5292E', last:'5 dias', lastColor:'#E5484D', pct:34 },
+      { name:'Carlos Lima', initials:'C', color:'#2D7FF9', level:'EJA Médio', risk:'high', riskLabel:'Alto', riskBg:'#FEEBD6', riskFg:'#B45309', last:'3 dias', lastColor:'#F59E0B', pct:58 },
+      { name:'Joana Reis', initials:'J', color:'#16A34A', level:'EJA Fund. II', risk:'low', riskLabel:'Em dia', riskBg:'#EAF8EF', riskFg:'#15803D', last:'hoje', lastColor:'#16A34A', pct:72 },
+      { name:'Pedro Alves', initials:'P', color:'#8B5CF6', level:'EJA Fund. I', risk:'medium', riskLabel:'Atenção', riskBg:'#FEF6D6', riskFg:'#A16207', last:'2 dias', lastColor:'#F59E0B', pct:41 },
+      { name:'Maria Costa', initials:'M', color:'#0EA5A5', level:'EJA Médio', risk:'low', riskLabel:'Em dia', riskBg:'#EAF8EF', riskFg:'#15803D', last:'hoje', lastColor:'#16A34A', pct:88 },
+      { name:'Lucas Dias', initials:'L', color:'#F59E0B', level:'EJA Fund. II', risk:'low', riskLabel:'Em dia', riskBg:'#EAF8EF', riskFg:'#15803D', last:'1 dia', lastColor:'#16A34A', pct:64 },
+    ];
+  }
+  alertsData() {
+    return [
+      { idx:0, name:'Ana Souza', initials:'A', color:'#FF6B5E', riskLabel:'Crítico', riskBg:'#FDE7E7', riskFg:'#C5292E', when:'há 1 dia',
+        factors:['5 dias sem acessar a plataforma','Taxa de acerto caiu de 80% para 40%','Sequência (streak) quebrada'],
+        suggestion:'Contato imediato. Envie uma mensagem de encorajamento, sem cobrança.',
+        message:'Oi Ana! Senti sua falta esses dias 🌟 Tá tudo bem? Quando puder, dá um pulinho no app — tem uma trilha esperando por você, no seu ritmo. Conta comigo!' },
+      { idx:1, name:'Carlos Lima', initials:'C', color:'#2D7FF9', riskLabel:'Alto', riskBg:'#FEEBD6', riskFg:'#B45309', when:'há 2 dias',
+        factors:['3 dias sem acesso','Abandonou 2 vídeos no meio','Tempo de estudo caindo'],
+        suggestion:'Ofereça conteúdo mais curto e gamificado para reengajar.',
+        message:'E aí Carlos! Bora terminar aquele módulo? 💪 Separei uns vídeos curtinhos pra você avançar rápido. Qualquer dúvida, é só chamar!' },
+    ];
+  }
+}
+</script>
+</body>
+</html>

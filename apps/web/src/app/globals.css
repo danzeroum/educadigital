@@ -4,23 +4,97 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 40 43% 96%;        /* #FBF7EF paper */
+    --foreground: 150 25% 11%;       /* #15241C ink */
+    --card: 0 0% 100%;
+    --card-foreground: 150 25% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 25% 11%;
+    --primary: 142 71% 36%;          /* #16A34A green */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 38 92% 50%;         /* #F59E0B amber */
+    --secondary-foreground: 30 70% 20%;
+    --muted: 40 30% 92%;
+    --muted-foreground: 150 9% 39%;  /* #5B6B62 ink-soft */
+    --accent: 142 71% 36%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 358 64% 53%;      /* #E5484D */
+    --destructive-foreground: 0 0% 100%;
+    --border: 40 30% 88%;            /* #ECE5D6 line */
+    --input: 40 28% 84%;             /* #E1DAC9 line-2 */
+    --ring: 142 71% 36%;
+    --radius: 1rem;
+  }
+
+  * {
+    border-color: hsl(var(--border));
   }
 
   html {
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
+    background-color: #FBF7EF;
   }
 
-  /* Larger tap targets for mobile (EJA audience) */
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
   button, a, [role="button"] {
     min-height: 44px;
+    min-width: 44px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  .gradient-green {
+    background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+  }
+  .gradient-green-deep {
+    background: linear-gradient(135deg, #0B5132 0%, #16A34A 100%);
+  }
+  .gradient-amber {
+    background: linear-gradient(135deg, #F59E0B 0%, #FFB938 100%);
+  }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    background: linear-gradient(90deg, #ECE5D6 25%, #F0EBDF 50%, #ECE5D6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  /* 3D flip perspective */
+  .flip-container { perspective: 1000px; }
+  .flip-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 400ms ease-in-out;
+  }
+  .flip-inner.flipped { transform: rotateY(180deg); }
+  .flip-front, .flip-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .flip-back { transform: rotateY(180deg); }
+
+  /* Safe area bottom padding for PWA bottom nav */
+  .pb-safe {
+    padding-bottom: max(80px, calc(80px + env(safe-area-inset-bottom)));
   }
 }

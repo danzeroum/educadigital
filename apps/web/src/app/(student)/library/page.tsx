@@ -3,22 +3,15 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { ResourceCard, type ResourceCardData } from "@/components/features/library/ResourceCard";
+import { ResourceCardSkeleton } from "@/components/ui/skeleton";
+import { useResources } from "@/lib/api/queries";
 import { cn } from "@/lib/utils";
 
 const FILTERS = ["Todos", "Vídeo", "Leitura", "Exercício"] as const;
 type Filter = (typeof FILTERS)[number];
 
-const MOCK_RESOURCES: ResourceCardData[] = [
-  { id: "r1", title: "Frações: o que são e como usar no dia a dia", mediaType: "video", durationMin: 12, ejaLevel: "Fund. II", difficulty: 2, completionPct: 100 },
-  { id: "r2", title: "Exercícios de frações equivalentes", mediaType: "exercise", durationMin: 8, ejaLevel: "Fund. II", difficulty: 3 },
-  { id: "r3", title: "A importância das frações na culinária", mediaType: "text", durationMin: 6, ejaLevel: "Fund. II", difficulty: 2, completionPct: 40 },
-  { id: "r4", title: "Números decimais: conexão com frações", mediaType: "video", durationMin: 15, ejaLevel: "Fund. II", difficulty: 3 },
-  { id: "r5", title: "Como calcular porcentagem no supermercado", mediaType: "video", durationMin: 10, ejaLevel: "Fund. II", difficulty: 2 },
-  { id: "r6", title: "Leitura: Carta de um trabalhador", mediaType: "text", durationMin: 5, ejaLevel: "Fund. I", difficulty: 1 },
-];
-
-const typeMap: Record<Filter, string> = {
-  Todos: "",
+const filterToMediaType: Record<Filter, string | undefined> = {
+  Todos: undefined,
   Vídeo: "video",
   Leitura: "text",
   Exercício: "exercise",
@@ -28,12 +21,22 @@ export default function LibraryPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("Todos");
 
-  const filtered = MOCK_RESOURCES.filter((r) => {
-    const matchType = typeMap[filter] === "" || r.mediaType === typeMap[filter];
-    const matchQuery =
-      query === "" || r.title.toLowerCase().includes(query.toLowerCase());
-    return matchType && matchQuery;
+  const { data: resources = [], isLoading } = useResources({
+    media_type: filterToMediaType[filter],
   });
+
+  const filtered = resources.filter(
+    (r) => query === "" || r.title.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const cards: ResourceCardData[] = filtered.map((r) => ({
+    id: r.id,
+    title: r.title,
+    mediaType: (r.media_type as ResourceCardData["mediaType"]) ?? "video",
+    durationMin: r.duration_min ?? 5,
+    ejaLevel: r.eja_level ?? "Fund. II",
+    difficulty: Math.round((r.difficulty_score ?? 2) * 2),
+  }));
 
   return (
     <div className="px-4 pt-14 pb-4">
@@ -70,7 +73,13 @@ export default function LibraryPage() {
       </div>
 
       {/* Grid */}
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ResourceCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : cards.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <span className="text-5xl">🔍</span>
           <p className="font-display font-700 text-xl text-ink">Nada por aqui ainda</p>
@@ -78,7 +87,7 @@ export default function LibraryPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
-          {filtered.map((r) => (
+          {cards.map((r) => (
             <ResourceCard key={r.id} resource={r} />
           ))}
         </div>

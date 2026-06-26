@@ -8,7 +8,8 @@ import { QuizStep } from "@/components/features/diagnostic/QuizStep";
 import { DiagnosticStepper } from "@/components/features/diagnostic/DiagnosticStepper";
 import { Confetti } from "@/components/features/diagnostic/Confetti";
 import { useDiagnosticStore } from "@/store/diagnostic.store";
-import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/auth.store";
+import { useStartDiagnostic, useDiagnosticResult, type DiagnosticResult } from "@/lib/api/queries";
 
 const WAITING_MESSAGES = [
   "Entendendo como você aprende melhor…",
@@ -18,10 +19,24 @@ const WAITING_MESSAGES = [
   "Preparando recomendações exclusivas…",
 ];
 
+const EJA_LABELS: Record<string, string> = {
+  EJA_Fundamental_I: "Fundamental I",
+  EJA_Fundamental_II: "Fundamental II",
+  EJA_Medio: "Ensino Médio",
+};
+
+const STYLE_LABELS: Record<string, { emoji: string; label: string }> = {
+  visual: { emoji: "🎬", label: "Visual + Vídeos" },
+  auditory: { emoji: "🎧", label: "Auditivo" },
+  kinesthetic: { emoji: "✋", label: "Cinestésico" },
+  mixed: { emoji: "🌈", label: "Variado" },
+};
+
 export default function DiagnosticPage() {
   const { step, setStep, setAudioBlob, addQuizAnswer, setReadingAudioBlob, quizAnswers } =
     useDiagnosticStore();
   const router = useRouter();
+  const [diagResult, setDiagResult] = useState<DiagnosticResult | null>(null);
 
   // Step 0: Intro
   if (step === 0) {
@@ -136,13 +151,20 @@ export default function DiagnosticPage() {
     );
   }
 
-  // Step 5: Waiting
+  // Step 5: Waiting (starts/polls diagnostic)
   if (step === 5) {
-    return <WaitingScreen onDone={() => setStep(6)} />;
+    return (
+      <WaitingScreen
+        onDone={(result) => {
+          setDiagResult(result);
+          setStep(6);
+        }}
+      />
+    );
   }
 
   // Step 6: Result
-  return <ResultScreen onStart={() => router.push("/dashboard")} />;
+  return <ResultScreen result={diagResult} onStart={() => router.push("/dashboard")} />;
 }
 
 function DiagnosticShell({
@@ -177,20 +199,34 @@ function DiagnosticShell({
   );
 }
 
-function WaitingScreen({ onDone }: { onDone: () => void }) {
+function WaitingScreen({ onDone }: { onDone: (result: DiagnosticResult) => void }) {
   const [msgIndex, setMsgIndex] = useState(0);
+  const { sessionId, setSessionId } = useDiagnosticStore();
+  const user = useAuthStore((s) => s.user);
+  const startDiagnostic = useStartDiagnostic();
+
+  useEffect(() => {
+    if (!sessionId && user?.id) {
+      startDiagnostic.mutate(user.id, {
+        onSuccess: (res) => setSessionId(res.session_id),
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { data: result } = useDiagnosticResult(sessionId);
+
+  useEffect(() => {
+    if (result) onDone(result);
+  }, [result, onDone]);
 
   useEffect(() => {
     const interval = setInterval(
       () => setMsgIndex((i) => (i + 1) % WAITING_MESSAGES.length),
       1500
     );
-    const timeout = setTimeout(onDone, 4600);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [onDone]);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-paper flex flex-col items-center justify-center gap-8 px-6 text-center">
@@ -223,13 +259,23 @@ function WaitingScreen({ onDone }: { onDone: () => void }) {
   );
 }
 
-function ResultScreen({ onStart }: { onStart: () => void }) {
+function ResultScreen({
+  result,
+  onStart,
+}: {
+  result: DiagnosticResult | null;
+  onStart: () => void;
+}) {
+  const ejaLabel = EJA_LABELS[result?.eja_level ?? ""] ?? result?.eja_level ?? "Fundamental II";
+  const styleInfo = STYLE_LABELS[result?.learning_style ?? ""] ?? { emoji: "🎬", label: "Visual + Vídeos" };
+  const strengths = result?.strengths ?? ["Leitura", "Matemática básica", "Compreensão oral"];
+
   return (
     <div className="min-h-screen bg-paper flex flex-col px-5 pb-8">
       <Confetti />
       <div className="pt-16 pb-6 text-center">
         <h1 className="font-display font-800 text-[28px] text-ink text-balance">
-          Sua trilha está pronta, Ana! 🎉
+          Sua trilha está pronta! 🎉
         </h1>
       </div>
 
@@ -238,28 +284,30 @@ function ResultScreen({ onStart }: { onStart: () => void }) {
           <p className="text-green-bright text-sm font-600 mb-1">Seu nível EJA</p>
           <div className="flex items-center gap-2">
             <span className="text-3xl">🌿</span>
-            <span className="font-display font-700 text-2xl">Fundamental II</span>
+            <span className="font-display font-700 text-2xl">{ejaLabel}</span>
           </div>
         </div>
 
         <div className="bg-surface rounded-card border border-line p-5">
           <p className="text-ink-muted text-sm font-600 mb-1">Como você aprende</p>
           <div className="flex items-center gap-2">
-            <span className="text-3xl">🎬</span>
-            <span className="font-display font-700 text-xl text-ink">Visual + Vídeos</span>
+            <span className="text-3xl">{styleInfo.emoji}</span>
+            <span className="font-display font-700 text-xl text-ink">{styleInfo.label}</span>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mt-2">
-          {["Leitura", "Matemática básica", "Compreensão oral"].map((s) => (
-            <span
-              key={s}
-              className="bg-green-tint text-green-700 rounded-full px-3 py-1 text-sm font-600"
-            >
-              ✓ {s}
-            </span>
-          ))}
-        </div>
+        {strengths.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {strengths.map((s) => (
+              <span
+                key={s}
+                className="bg-green-tint text-green-700 rounded-full px-3 py-1 text-sm font-600"
+              >
+                ✓ {s}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <Button

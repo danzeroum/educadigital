@@ -151,6 +151,9 @@ interface Resource {
   status: string;
   difficulty_score: number | null;
   summary_basic: string | null;
+  summary_intermediate: string | null;
+  transcript: string | null;
+  source_name: string | null;
   tags: string[];
   bncc_codes: string[];
 }
@@ -201,9 +204,48 @@ export function useUpdateProgress() {
   });
 }
 
+// ─── Resource checkpoints & exercises ────────────────────────────────────────
+
+interface Checkpoint {
+  id: string;
+  timestamp_seconds: number;
+  concept_key: string;
+  checkpoint_order: number;
+}
+
+export function useResourceCheckpoints(resourceId: string | null) {
+  return useQuery<Checkpoint[]>({
+    queryKey: ["content", "checkpoints", resourceId],
+    queryFn: () => api.get<Checkpoint[]>(`/content/resources/${resourceId}/checkpoints`),
+    enabled: !!resourceId,
+    staleTime: 300_000,
+  });
+}
+
+export interface Exercise {
+  id: string;
+  exercise_type: string;
+  content: {
+    question: string;
+    options?: string[];
+    correct_index?: number;
+    explanation?: string;
+  };
+  difficulty_level: number;
+}
+
+export function useResourceExercises(resourceId: string | null) {
+  return useQuery<Exercise[]>({
+    queryKey: ["content", "exercises", resourceId],
+    queryFn: () => api.get<Exercise[]>(`/content/resources/${resourceId}/exercises`),
+    enabled: !!resourceId,
+    staleTime: 300_000,
+  });
+}
+
 // ─── Diagnostic ───────────────────────────────────────────────────────────────
 
-interface DiagnosticResult {
+export interface DiagnosticResult {
   id: string;
   eja_level: string;
   learning_style: string;
